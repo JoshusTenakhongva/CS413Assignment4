@@ -1,0 +1,31 @@
+<html> 
+	<head>
+		<title>CS413 Assignment 2</title>
+	</head>
+	<body>
+		<h1>A Puzzle Game, I Guess?</h1>
+		<div id="gameport"></div>
+		
+		<p>Score</p>
+		<p id="score"></p>
+	
+		<h1>Instructions</h1>
+		<p>Press "Space" to launch a bubble</br>
+		   Your wand follows your mouse</p>
+
+		<h1>Comments</h1>
+		<div id="disqus_thread"></div>
+		<script>
+		(function() {
+		var d = document, s = d.createElement('script');
+		s.src = 'http://nau-cs413.disqus.com/embed.js';
+		s.setAttribute('data-timestamp', +new Date());
+		(d.head || d.body).appendChild(s);
+		})(); 
+		</script>
+
+		<script src="pixi.min.js"></script>
+		<script src="tweenjs.min.js"></script>
+		<script src="game.js"></script>
+	</body>
+</html>
