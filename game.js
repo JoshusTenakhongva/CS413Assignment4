@@ -28,12 +28,24 @@ var tutorialButton = new PIXI.Sprite( PIXI.Texture.fromImage( "tutorialButton.pn
 var creditsButton = new PIXI.Sprite( PIXI.Texture.fromImage( "creditsButton.png" ); 
 var backButton = new PIXI.Sprite( PIXI.Texture.fromImage( "backButton.png" ); 
 
+var	player = {//player's metadata
+		x: 200,
+		y: 100,
+		speed: 3,
+		xVel: 0,
+		yVel: 0,
+		onGround: false,
+		isJumping: false		
+	};
+	
 
 function animate()
 	{
 	requestAnimationFrame( animate );
 	renderer.render( stage ); 
 	}
+	
+
 
 animate(); 
 
