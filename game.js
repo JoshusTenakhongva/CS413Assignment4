@@ -3,7 +3,18 @@ var renderer = PIXI.autoDetectRenderer({ width: 800, height: 600, backgroundColo
 
 gameport.appendChild( renderer.view );
 
+/* 
+Different containers for different menus
+*/ 
 var stage = new PIXI.Container();
+
+var titleScreen = new PIXI.Container(); 
+var gameScreen = new PIXI.Container(); 
+var creditsScreen = new PIXI.Container(); 
+var tutorialScreen = new PIXI.Container(); 
+
+stage.addChild( titleScreen ); 
+
 
 function animate()
 	{
