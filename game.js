@@ -20,6 +20,8 @@ stage.addChild( titleScreen );
 */ 
 // Create start button 
 var startButton = new PIXI.Sprite( PIXI.Texture.fromImage( "startButton.png" )); 
+startButton.interactive = true; 
+startButton.on( 'mousedown', startButtonClickHandler ); 
 startButton.position.x = 450; 
 startButton.position.y = 400; 
 startButton.anchor.x = 0.5; 
@@ -33,6 +35,8 @@ var creditsButton = new PIXI.Sprite( PIXI.Texture.fromImage( "creditsButton.png"
 
 // create back button  
 var backButton = new PIXI.Sprite( PIXI.Texture.fromImage( "backButton.png" )); 
+backButton.interactive = true; 
+backButton.on( 'mousedown', backButtonClickHandler ); 
 
 var	player = {//player's metadata
 		x: 200,
@@ -45,27 +49,75 @@ var	player = {//player's metadata
 	};
 	
 
+
 function animate()
 	{
 	requestAnimationFrame( animate );
 	renderer.render( stage ); 
 	}
 	
-
-
+initializeTitleScreen(); 
 animate(); 
 
-/*
+
 function initializeTitleScreen()
 	{
 		
 	titleScreen.addChild( startButton ); 
-	startButton.interactive = true; 
-	//startButton.on( 'mousedown', startButtonClickHandler ); 
+	
 	
 	var titleText = new PIXI.Text( "Video Game" ); 
 	titleText.position.x = 300; 
 	titleText.position.y = 400; 
 	titleText.anchor.x = 0.5;
 	titleText.anchor.y = 0.5; 
-	} */ 
+	
+	titleScreen.addChild( titleText ); 
+	} 
+	
+/*
+* menu button click handler functions 
+*/ 
+function startButtonClickHandler( e )
+	{
+		
+	stage.removeChild( titleScreen ); 
+	stage.addChild( gameScreen ); 
+	gameScreen.addChild( backButton ); 
+	
+	renderer.backgroundColor = 0xffb18a; 
+	}
+	
+function tutorialButtonClickHandler( e )
+	{
+		
+	stage.removeChild( titleScreen ); 
+	stage.addChild( tutorialScreen ); 
+	
+	renderer.backgroundColor = 0x7dadff; 
+	}
+	
+function creditsButtonClickHandler( e )
+	{
+
+	stage.removeChild( titleScreen ); 
+	stage.addChild( creditsScreen ); 
+	
+	renderer.backgroundColor = 0xff759c; 
+	
+	creditsScreen.addChild( backButton ); 
+	}	
+
+function backButtonClickHandler( e )
+	{
+		
+	stage.addChild( titleScreen ); 
+	
+	stage.removeChild( gameScreen );
+	stage.removeChild( creditsScreen ); 
+	stage.removeChild( tutorialScreen ); 
+	
+	renderer.backgroundColor = 0x6ac48a; 
+	}
+	
+
