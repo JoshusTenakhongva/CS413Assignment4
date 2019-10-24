@@ -37,6 +37,7 @@ function animate()
 
 animate(); 
 
+/*
 function initializeTitleScreen()
 	{
 		
@@ -49,4 +50,4 @@ function initializeTitleScreen()
 	titleText.position.y = 400; 
 	titleText.anchor.x = 0.5;
 	titleText.anchor.y = 0.5; 
-	}
+	} */ 
