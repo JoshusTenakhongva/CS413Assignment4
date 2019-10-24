@@ -18,15 +18,21 @@ stage.addChild( titleScreen );
 /*
 * Create menu buttons 
 */ 
-var startButton = new PIXI.Sprite( PIXI.Texture.fromImage( "startButton.png" ); 
+// Create start button 
+var startButton = new PIXI.Sprite( PIXI.Texture.fromImage( "startButton.png" )); 
 startButton.position.x = 450; 
 startButton.position.y = 400; 
 startButton.anchor.x = 0.5; 
 startButton.anchor.y = 0.5; 
 
-var tutorialButton = new PIXI.Sprite( PIXI.Texture.fromImage( "tutorialButton.png" ); 
-var creditsButton = new PIXI.Sprite( PIXI.Texture.fromImage( "creditsButton.png" ); 
-var backButton = new PIXI.Sprite( PIXI.Texture.fromImage( "backButton.png" ); 
+// Create tutorial button 
+var tutorialButton = new PIXI.Sprite( PIXI.Texture.fromImage( "tutorialButton.png" ));
+
+// create credits button  
+var creditsButton = new PIXI.Sprite( PIXI.Texture.fromImage( "creditsButton.png" ));
+
+// create back button  
+var backButton = new PIXI.Sprite( PIXI.Texture.fromImage( "backButton.png" )); 
 
 var	player = {//player's metadata
 		x: 200,
