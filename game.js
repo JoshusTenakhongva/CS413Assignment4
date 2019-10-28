@@ -132,106 +132,120 @@ animate();
 /*
 * Desc: Initializes the opening title screen for the game
 */
-function initializeTitleScreen()
-	{
+var GAME_WIDTH = 720;
+var GAME_HEIGHT = 400;
+var GAME_SCALE = 4;
+// var HORIZON_Y = GAME_HEIGHT/GAME_SCALE/2;
 
-  // Add the buttons for title menu functionality
-	titleScreen.addChild( startButton );
-  titleScreen.addChild( tutorialButton );
-  titleScreen.addChild( creditsButton );
+var gameport = document.getElementById("gameport");
+var renderer = new PIXI.autoDetectRenderer(GAME_WIDTH,
+                                           GAME_HEIGHT,
+                                           {backgroundColor: 0x99D5FF});
+gameport.appendChild(renderer.view);
 
-  // Create the text that will appear on the start menu
-	var titleText = new PIXI.Text( "Video Game" );
-	titleText.position.x = 400;
-	titleText.position.y = 200;
-	titleText.anchor.x = 0.5;
-	titleText.anchor.y = 0.5;
+var stage = new PIXI.Container();
+stage.scale.x = GAME_SCALE;
+stage.scale.y = GAME_SCALE;
 
-  // Add the text to the screen
-	titleScreen.addChild( titleText );
-	}
+// Scene objects get loaded in the ready function
+var player;
+var world;
 
-/*
-* menu button click handler functions
-*/
-/*
-* Desc: Handles the event when the player clicks on the start button on the
-*   main menu. Begins the game proper.
-*/
-function startButtonClickHandler( e )
-	{
+// Character movement constants:
+var MOVE_LEFT = 1;
+var MOVE_RIGHT = 2;
+var MOVE_UP = 3;
+var MOVE_DOWN = 4;
+var MOVE_NONE = 0;
 
-  // Remove the title screen from the stage
-	stage.removeChild( titleScreen );
-  // Add the container that holds the main game to the stage
-	GameLoop();
-	stage.addChild( gameScreen );
-	stage.addChild(world);
-	renderer.backgroundColor = 0xffb18a;
-  gameScreen.addChild( backButton );
-	}
+// The move function starts or continues movement
+function move() {
+  if (player.direction == MOVE_NONE) {
+    player.moving = false;
+    console.log(player.y);
+    return;
+  }
+  player.moving = true;
+  console.log("move");
+  
+  if (player.direction == MOVE_LEFT) {
+    createjs.Tween.get(player).to({x: player.x - 32}, 500).call(move);
+  }
+  if (player.direction == MOVE_RIGHT)
+    createjs.Tween.get(player).to({x: player.x + 32}, 500).call(move);
 
-/*
-* Desc: Handles the event when the player clicks on the tutorial button on
-*   the main menu. Adds the tutorial container and removes the title menu
-*   container :
-*/
-function tutorialButtonClickHandler( e )
-	{
+  if (player.direction == MOVE_UP)
+    createjs.Tween.get(player).to({y: player.y - 32}, 500).call(move);
+  
+  if (player.direction == MOVE_DOWN)
+    createjs.Tween.get(player).to({y: player.y + 32}, 500).call(move);
+}
 
-	stage.removeChild( titleScreen );
-	stage.addChild( tutorialScreen );
+// Keydown events start movement
+window.addEventListener("keydown", function (e) {
+  e.preventDefault();
+  if (!player) return;
+  if (player.moving) return;
+  if (e.repeat == true) return;
+  
+  player.direction = MOVE_NONE;
 
-  var tutorialText = new PIXI.Text( "Tutorial Text" );
-  tutorialText.position.x = 400;
-	tutorialText.position.y = 200;
-	tutorialText.anchor.x = 0.5;
-	tutorialText.anchor.y = 0.5;
+  if (e.keyCode == 87)
+    player.direction = MOVE_UP;
+  else if (e.keyCode == 83)
+    player.direction = MOVE_DOWN;
+  else if (e.keyCode == 65)
+    player.direction = MOVE_LEFT;
+  else if (e.keyCode == 68)
+    player.direction = MOVE_RIGHT;
 
-	renderer.backgroundColor = 0x7dadff;
-  tutorialScreen.addChild( tutorialText );
-  tutorialScreen.addChild( backButton );
-	}
+  console.log(e.keyCode);
+  move();
+});
 
-/*
-* Desc: Function that handles when the credits button is clicked on in th menu
-*   It adds the credits container to the stage, removes the title container,
-*   and populates the credits container
-*/
-function creditsButtonClickHandler( e )
-	{
+// Keyup events end movement
+window.addEventListener("keyup", function onKeyUp(e) {
+  e.preventDefault();
+  if (!player) return;
+  player.direction = MOVE_NONE;
+});
 
-	stage.removeChild( titleScreen );
-	stage.addChild( creditsScreen );
-  var creditsText = new PIXI.Text( "Game was made by\n" +
-  "Kellar ...\nAndrew ...\nJoshus Tenakhongva");
-  creditsText.position.x = 400;
-	creditsText.position.y = 200;
-	creditsText.anchor.x = 0.5;
-	creditsText.anchor.y = 0.5;
+PIXI.SCALE_MODES.DEFAULT = PIXI.SCALE_MODES.NEAREST;
 
-	renderer.backgroundColor = 0xff759c;
-  creditsScreen.addChild( creditsText );
-	creditsScreen.addChild( backButton );
-	}
+PIXI.loader
+  .add('map_json', 'map.json')
+  .add('tileset', 'tileset.png')
+  .add('blob', 'blob.png')
+  .load(ready);
 
-/*
-* Desc: When clicked, will bring the player back to the main menu. 
-*/
-function backButtonClickHandler( e )
-	{
+function ready() {
+  var tu = new TileUtilities(PIXI);
+  world = tu.makeTiledWorld("map_json", "tileset.png");
+  stage.addChild(world);
 
-	stage.addChild( titleScreen );
+  var blob = world.getObject("blob");
+  
+  player = new PIXI.Sprite(PIXI.loader.resources.blob.texture);
+  player.x = blob.x;
+  player.y = blob.y;
+  player.anchor.x = 0.0;
+  player.anchor.y = 1.0;
 
-	stage.removeChild( gameScreen );
-	stage.removeChild( creditsScreen );
-	stage.removeChild( tutorialScreen );
+  // Find the entity layer
+  var entity_layer = world.getObject("Entities");
+  entity_layer.addChild(player);
 
-	renderer.backgroundColor = 0x6ac48a;
-	}
-/*
-*	Moves the camera relative to the player's position
-*/	
+  player.direction = MOVE_NONE;
+  player.moving = false;
+
+}
+
+function animate(timestamp) {
+  requestAnimationFrame(animate);
+  update_camera();
+  renderer.render(stage);
+}
+
 function update_camera() {
   stage.x = -player.x*GAME_SCALE + GAME_WIDTH/2 - player.width/2*GAME_SCALE;
   stage.y = -player.y*GAME_SCALE + GAME_HEIGHT/2 + player.height/2*GAME_SCALE;
