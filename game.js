@@ -1,5 +1,5 @@
-var GAME_WIDTH = 720;
-var GAME_HEIGHT = 400;
+var GAME_WIDTH = 8000;
+var GAME_HEIGHT = 600;
 var GAME_SCALE = 4;
 
 var gameport = document.getElementById( "gameport" );
@@ -11,24 +11,18 @@ gameport.appendChild( renderer.view );
 Different containers for different menus
 */
 var stage = new PIXI.Container();
-stage.scale.x = GAME_SCALE;
-stage.scale.y = GAME_SCALE;
+//stage.scale.x = GAME_SCALE;
+//stage.scale.y = GAME_SCALE;
 
 var titleScreen = new PIXI.Container();
-titleScreen.scale.x = GAME_SCALE;
-titleScreen.scale.y = GAME_SCALE;
 
 var gameScreen = new PIXI.Container();
 gameScreen.scale.x = GAME_SCALE;
 gameScreen.scale.y = GAME_SCALE;
 
 var creditsScreen = new PIXI.Container();
-creditsScreen.scale.x = GAME_SCALE;
-creditsScreen.scale.y = GAME_SCALE;
 
 var tutorialScreen = new PIXI.Container();
-tutorialScreen.scale.x = GAME_SCALE;
-tutorialScreen.scale.y = GAME_SCALE;
 
 stage.addChild( titleScreen );
 
@@ -92,12 +86,12 @@ PIXI.loader
   .add('tileset', 'tileset.png')
   .add('blob', 'player_character.png')
   .load(ready);
-//Createst the World and the Tileset background
+
 function ready() 
 {
   var tu = new TileUtilities(PIXI);
   world = tu.makeTiledWorld("map_json", "tileset.png");
-  stage.addChild(world);
+  
   
   var blob = world.getObject("blob");
   
@@ -115,15 +109,21 @@ function ready()
 
   player.direction = MOVE_NONE;
   player.moving = false;
-  animate();
+  
 }
 
 function animate(timestamp)
 {
 	requestAnimationFrame(animate);
-	update_camera();
+	
 	renderer.render(stage);
  }
+
+function GameLoop()
+{
+	requestAnimationFrame(GameLoop);
+	update_camera();
+}
 
 initializeTitleScreen();
 animate();
@@ -164,6 +164,7 @@ function startButtonClickHandler( e )
   // Remove the title screen from the stage
 	stage.removeChild( titleScreen );
   // Add the container that holds the main game to the stage
+	GameLoop();
 	stage.addChild( gameScreen );
 	stage.addChild(world);
 	renderer.backgroundColor = 0xffb18a;
@@ -237,4 +238,3 @@ function update_camera() {
   stage.x = -Math.max(0, Math.min(world.worldWidth*GAME_SCALE - GAME_WIDTH, -stage.x));
   stage.y = -Math.max(0, Math.min(world.worldHeight*GAME_SCALE - GAME_HEIGHT, -stage.y));
 }
-
