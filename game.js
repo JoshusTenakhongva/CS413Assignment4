@@ -112,20 +112,20 @@ function ready()
   var tu = new TileUtilities(PIXI);
   world = tu.makeTiledWorld( "testroom_json", "tileset.png" );
 	
-  
+ 
   var blob = world.getObject("blob");
-  
+ 
   player = new PIXI.Sprite(PIXI.loader.resources.blob.texture);
   player.x = blob.x;
   player.y = blob.y;
   player.anchor.x = 0.0;
   player.anchor.y = 1.0;
 
-	/*
   // Find the entity layer
+	
   var entity_layer = world.getObject("Entities");
   entity_layer.addChild(player);	
-	*/ 
+	 
 
   player.direction = MOVE_NONE;
   player.moving = false;

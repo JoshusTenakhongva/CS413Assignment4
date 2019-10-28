@@ -128,7 +128,25 @@
          "draworder":"topdown",
          "id":4,
          "name":"Entities",
-         "objects":[],
+         "objects":[
+                {
+                 "gid":17,
+                 "height":45,
+                 "id":9,
+                 "name":"",
+                 "properties":[
+                        {
+                         "name":"name",
+                         "type":"string",
+                         "value":"player_character"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":30,
+                 "x":13.875,
+                 "y":127.875
+                }],
          "opacity":1,
          "type":"objectgroup",
          "visible":true,
@@ -136,7 +154,7 @@
          "y":0
         }],
  "nextlayerid":5,
- "nextobjectid":9,
+ "nextobjectid":10,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.2.5",
@@ -281,6 +299,25 @@
                         }]
                 }],
          "tilewidth":16
+        }, 
+        {
+         "columns":1,
+         "firstgid":17,
+         "image":"..\/..\/..\/Desktop\/CS413 Assignments\/player_character.png",
+         "imageheight":45,
+         "imagewidth":30,
+         "margin":0,
+         "name":"player_character",
+         "properties":[
+                {
+                 "name":"name",
+                 "type":"string",
+                 "value":"player_character"
+                }],
+         "spacing":0,
+         "tilecount":1,
+         "tileheight":45,
+         "tilewidth":30
         }],
  "tilewidth":16,
  "type":"map",
