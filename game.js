@@ -87,6 +87,12 @@ player = {//player's metadata
 		isJumping: false
 	};
 
+var playerVis = new PIXI.Sprite(PIXI.Texture.from( "player_character.png" ));
+	playerVis.x = player.x;
+	playerVis.y = player.y;
+
+var gameRunning = false;
+
 PIXI.SCALE_MODES.DEFAULT = PIXI.SCALE_MODES.NEAREST;
 
 PIXI.loader
@@ -94,6 +100,73 @@ PIXI.loader
   .add('tileset', 'tileset.png')
   .add('blob', 'player_character.png')
   .load(ready);
+
+function keydownHandler(key) {
+    //w
+    if(key.keyCode == 87 && player.isJumping == false) {
+        player.isJumping = true;
+		player.yVel = -2;
+    }
+
+    //a
+    if(key.keyCode == 65) {
+		player.moveRight = true;
+    }
+
+    //d
+    if(key.keyCode == 68) {
+		player.moveLeft = true;
+    }
+}	
+
+function keyupHandler(key) {
+    //a
+    if(key.keyCode == 65) {
+		player.moveRight = false;
+    }
+
+    //d
+    if(key.keyCode == 68) {
+		player.moveLeft = false;
+    }
+} 
+	
+document.addEventListener('keydown', keydownHandler);	
+document.addEventListener('keyup', keyupHandler);
+
+function moveCharacter()
+{	
+	var newPosX = player.x + (player.speed * player.xVel);
+	var newPosY = player.y + (player.speed * player.yVel);
+
+	//in bounds check so we dont fall off the world
+	if(  newPosY < 500 )
+	{
+			player.y += player.speed * player.yVel;
+	}else
+	{
+		player.isJumping = false;
+	}
+		
+	if( player.yVel < 2 )
+	{
+		player.yVel += .05;
+	}
+	
+	if( player.moveLeft == true )
+	{
+		player.x += 1.5;
+	}
+	
+	if( player.moveRight == true)
+	{
+		player.x -= 1.5;
+	}
+	
+	playerVis.x = player.x;
+	playerVis.y = player.y;
+	
+}
 
 function ready() 
 {
@@ -123,7 +196,10 @@ function ready()
 function animate(timestamp)
 {
 	requestAnimationFrame(animate);
-	
+	if(gameRunning)
+	{
+		moveCharacter();
+	}
 	renderer.render(stage);
  }
 
@@ -177,7 +253,8 @@ function startButtonClickHandler( e )
 	GameLoop();
 	stage.addChild( gameScreen );
 	stage.addChild(world);
-
+	gameScreen.addChild( playerVis );
+	gameRunning = true;
 	//renderer.backgroundColor = 0xffb18a;
 	gameScreen.addChild( backButton );
 	}
@@ -233,11 +310,11 @@ function backButtonClickHandler( e )
 	{
 
 	stage.addChild( titleScreen );
-
+	stage.removeChild( playerVis );
 	stage.removeChild( gameScreen );
 	stage.removeChild( creditsScreen );
 	stage.removeChild( tutorialScreen );
-
+	gameRunning = false;
 	renderer.backgroundColor = 0x6ac48a;
 	}
 /*
