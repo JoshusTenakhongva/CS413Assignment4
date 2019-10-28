@@ -92,7 +92,7 @@ PIXI.loader
   .add('tileset', 'tileset.png')
   .add('blob', 'player_character.png')
   .load(ready);
-
+//Createst the World and the Tileset background
 function ready() 
 {
   var tu = new TileUtilities(PIXI);
