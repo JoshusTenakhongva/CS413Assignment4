@@ -67,6 +67,8 @@ creditsButton.anchor.y = 0.5;
 // create back button
 var backButton = new PIXI.Sprite( PIXI.Texture.fromImage( "backButton.png" ));
 backButton.interactive = true;
+backButton.scale.x = GAME_SCALE/20; 
+backButton.scale.y = GAME_SCALE/20;
 backButton.on( 'mousedown', backButtonClickHandler );
 
 var MOVE_LEFT = 1;
@@ -96,10 +98,39 @@ var gameRunning = false;
 PIXI.SCALE_MODES.DEFAULT = PIXI.SCALE_MODES.NEAREST;
 
 PIXI.loader
-  .add('map_json', 'testroom.json')
-  .add('tileset', 'tileset.png')
-  .add('blob', 'player_character.png')
+  .add( 'map_json', 'map.json' )
+	.add( 'testroom_json', 'testroom.json' )
+  .add( 'tilemap',  'tilemap.png' )
+  .add( 'blob',     'player_character.png' )
+	.add( 'tileset',  'tileset.png' )
   .load(ready);
+	
+
+function ready() 
+{
+	
+  var tu = new TileUtilities(PIXI);
+  world = tu.makeTiledWorld( "testroom_json", "tileset.png" );
+	
+  
+  var blob = world.getObject("blob");
+  
+  player = new PIXI.Sprite(PIXI.loader.resources.blob.texture);
+  player.x = blob.x;
+  player.y = blob.y;
+  player.anchor.x = 0.0;
+  player.anchor.y = 1.0;
+
+	/*
+  // Find the entity layer
+  var entity_layer = world.getObject("Entities");
+  entity_layer.addChild(player);	
+	*/ 
+
+  player.direction = MOVE_NONE;
+  player.moving = false;
+  
+}
 
 function keydownHandler(key) {
     //w
@@ -168,31 +199,6 @@ function moveCharacter()
 	
 }
 
-function ready() 
-{
-  var tu = new TileUtilities(PIXI);
-  world = tu.makeTiledWorld("map_json", "tileset.png");
-  
-  
-  var blob = world.getObject("blob");
-  
-  player = new PIXI.Sprite(PIXI.loader.resources.blob.texture);
-  player.x = blob.x;
-  player.y = blob.y;
-  player.anchor.x = 0.0;
-  player.anchor.y = 1.0;
-
-  // Find the entity layer
-  var entity_layer = world.getObject("Entities");
-  entity_layer.addChild(player);
- var entity_layer = world.getObject("Entities");
-  entity_layer.addChild(player);
-
-  player.direction = MOVE_NONE;
-  player.moving = false;
-  
-}
-
 function animate(timestamp)
 {
 	requestAnimationFrame(animate);
@@ -252,10 +258,10 @@ function startButtonClickHandler( e )
   // Add the container that holds the main game to the stage
 	GameLoop();
 	stage.addChild( gameScreen );
-	stage.addChild(world);
+	stage.addChild( world );
 	gameScreen.addChild( playerVis );
 	gameRunning = true;
-	//renderer.backgroundColor = 0xffb18a;
+	renderer.backgroundColor = 0xffb18a;
 	gameScreen.addChild( backButton );
 	}
 
@@ -291,8 +297,7 @@ function creditsButtonClickHandler( e )
 
 	stage.removeChild( titleScreen );
 	stage.addChild( creditsScreen );
-  var creditsText = new PIXI.Text( "Game was made by\n" +
-  "Kellar ...\nAndrew ...\nJoshus Tenakhongva");
+  var creditsText = new PIXI.Text( "Game was made by\nKellar ...\nAndrew ...\nJoshus Tenakhongva" );
   creditsText.position.x = 400;
 	creditsText.position.y = 200;
 	creditsText.anchor.x = 0.5;
