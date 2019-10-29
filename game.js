@@ -408,6 +408,8 @@ function creditsButtonClickHandler( e )
 	creditsText.position.y = 200/3;
 	creditsText.scale.x = 0.5; 
 	creditsText.scale.y - 0.5; 
+  creditsText.position.x = 400;
+	creditsText.position.y = 200;
 	creditsText.anchor.x = 0.5;
 	creditsText.anchor.y = 0.5;
 
