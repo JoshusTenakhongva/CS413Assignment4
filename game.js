@@ -30,6 +30,10 @@ var tutorialScreen = new PIXI.Container();
 tutorialScreen.scale.x = GAME_SCALE/4; 
 tutorialScreen.scale.Y = GAME_SCALE/4; 
 
+var world = new PIXI.Container(); 
+world.scale.x = 0.25; 
+world.scale.y = 0.25; 
+
 stage.addChild( titleScreen );
 
 PIXI.loader
@@ -89,17 +93,30 @@ var MOVE_UP = 3;
 var MOVE_DOWN = 4;
 var MOVE_NONE = 0;
 
-var world = PIXI.Container(); 
+
 let tileMap = 
 	{
-	width: 4, 
-	height: 4, 
+	width: 16, 
+	height: 16, 
 	tiles: 
-		[ 
-		1, 1, 1, 1, 
-		1, 1, 1, 1, 
-		1, 1, 1, 1, 
-		1, 1, 1, 1, 
+		[
+		
+		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+		1, 2, 4, 5, 1, 1, 1, 1, 1, 1, 1, 2, 3, 4, 1, 1, 
+		1, 8, 10, 11, 1, 1, 1, 1, 1, 1, 1, 8, 9, 10, 1, 1, 
+		1, 1, 1, 17, 17, 17, 17, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+		1, 1, 1, 15, 15, 15, 15, 12, 1, 1, 1, 1, 1, 1, 1, 1, 
+		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+		17, 17, 17, 1, 1, 1, 1, 1, 17, 17, 1, 1, 1, 1, 1, 1, 
+		15, 15, 15, 12, 1, 1, 1, 18, 15, 15, 17, 17, 17, 1, 1, 1, 
+		14, 14, 14, 14, 1, 1, 18, 14, 14, 14, 15, 15, 15, 1, 1, 1, 
+		13, 13, 13, 13, 1, 1, 13, 13, 13, 13, 14, 14, 14, 1, 1, 1, 
+		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 18, 
+		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 18, 14, 
+		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 18, 14, 13, 
+		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 18, 14, 13, 13, 
+		1, 1, 17, 17, 17, 17, 17, 17, 17, 17, 17, 18, 14, 13, 13, 13, 
+		1, 18, 15, 15, 15, 15, 15, 15, 15, 15, 15, 14, 13, 13, 13, 13
 		]
 	}	
 
@@ -127,11 +144,11 @@ function loadWorld()
 	let resources = PIXI.loader.resources; 
 	const tileSetWidth = 6;
   const tileSetHeight = 3;
-  const tileSize = 32;
+  const tileSize = 34;
 	let tileSet = [];
 
-  var tu = new TileUtilities(PIXI);
-  world = tu.makeTiledWorld( "testroom_json", "tile_assets/tileset.png" );
+  //var tu = new TileUtilities(PIXI);
+  //world = tu.makeTiledWorld( "testroom_json", "tile_assets/tileset.png" );
 
   for( let i = 0; i < tileSetWidth * tileSetHeight; i++ )
     {
@@ -152,30 +169,29 @@ function loadWorld()
 			{
 
 			let tile = tileMap.tiles[ y * tileMap.width + x ]; 
-			let sprite = new PIXI.Sprite( tileSet[ tile ]); 
-			sprite.x = x * tileSize; 
-			sprite.y = y * tileSize; 
-			sprite.scale.x = 0.5; 
-			sprite.scale.y = 0.5; 
+			let sprite = new PIXI.Sprite( tileSet[ tile - 1 ]); 
+			sprite.anchor.x = 0.0; 
+			sprite.anchor.y = 0.0; 
+			sprite.x = x * ( tileSize ); 
+			sprite.y = y * ( tileSize ); 
 			background.addChild( sprite ); 
 			}		
 		}
 
 	
-
+	/*
   player = new PIXI.Sprite(PIXI.loader.resources.player_character.texture);
   player.x = GAME_WIDTH / 2;
   player.y = GAME_HEIGHT / 2;
   player.anchor.x = 0.5;
   player.anchor.y = 1.0;
-
-  world.addChild(player);
+	*/ 
+	
+  //world.addChild( playerVis );
 	world.addChild( background ); 
 
   player.direction = MOVE_NONE;
   player.moving = false;
-
-
 }
 
 function keydownHandler(key) {
@@ -307,7 +323,7 @@ function startButtonClickHandler( e )
 	GameLoop();
 	stage.addChild( gameScreen );
 	stage.addChild( world );
-	gameScreen.addChild( playerVis );
+	world.addChild( playerVis );
 	gameRunning = true;
 
 	renderer.backgroundColor = 0xffb18a;
