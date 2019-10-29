@@ -186,8 +186,7 @@ function loadWorld()
   player = new PIXI.Sprite(PIXI.loader.resources.player_character.texture);
   player.x = GAME_WIDTH / 2;
   player.y = GAME_HEIGHT / 2;
-  player.anchor.x = 0.5;
-  player.anchor.y = 1.0;
+  
 	*/ 
 	
   //world.addChild( playerVis );
@@ -199,8 +198,8 @@ function loadWorld()
 
 function keydownHandler(key) {
     //w
-
-    if(key.keyCode == 87 && playerOnGround() ) {
+		// Check if the player hits the w key and they are on the ground 
+    if(key.keyCode == 87 && playerOnGround( player.x, player.y )) {
       player.isJumping = true;
 			player.yVel = -2;
     }
@@ -235,24 +234,27 @@ function moveCharacter()
 {
 	var newPosX = player.x + (player.speed * player.xVel);
 	var newPosY = player.y + (player.speed * player.yVel);
-
-	if( playerOnGround( newPosX, newPosY ))
+	
+	// Check if the player is currently going upward 
+	if( player.yVel > 0 )
 		{
 			
-		player.isJumping = false;
+		player.isJumping = false; 
+		}
+
+	// Check if the player is on the ground and they are not jumping
+	if( playerOnGround( player.x, player.y ) && player.isJumping == false  )
+		{
+			
 		player.yVel = 0; 
 		}
 	
+	// If the player is not on the ground or is jumping
 	else
 	{
+		player.yVel += .05;
 		player.y += player.speed * player.yVel;
 	}
-
-	
-	if( player.yVel < 0 || playerOnGround() == false )
-	{
-		player.yVel += .05;
-	} 
 
 	if( player.moveLeft == true )
 	{
@@ -411,29 +413,18 @@ function playerOnGround( posX, posY )
 	{
 		
 	// Find the location of the tile the player is currently on
-	var xTileLocation = posX % 34; 
-	var yTileLocation = (posY % 34); 
+	var xTileLocation = Math.floor( posX / 34 ); 
+	var yTileLocation = Math.floor( posY / 34 ); 
 	
 	// Find the tile index the player is on
-	var tileIndex = yTileLocation * tileMap.width + xTileLocation; 
+	var tileLocation = yTileLocation * tileMap.width + xTileLocation; 
+	var tileOn = tileMap.tiles[ tileLocation ]; 
 	
 	// Check if the tile we're on is solid ground 
-	if( tileIndex == FLAT_GROUND ||
-			tileIndex == RIGHT_SLOPE ||
-			tileIndex == LEFT_SLOPE )
+	if( tileOn == FLAT_GROUND ||
+			tileOn == RIGHT_SLOPE ||
+			tileOn == LEFT_SLOPE )
 		{
-		/*
-		switch( tileIndex )
-			{
-				
-			case FLAT_GROUND:
-				
-			
-			case RIGHT_SLOPE:
-			
-			case LEFT_SLOPE: 
-			}
-			*/ 
 		player.yVel = 0; 
 		
 		player.isJumping = false; 
