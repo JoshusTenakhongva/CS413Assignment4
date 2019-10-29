@@ -93,6 +93,9 @@ var MOVE_UP = 3;
 var MOVE_DOWN = 4;
 var MOVE_NONE = 0;
 
+const FLAT_GROUND = 15; 
+const RIGHT_SLOPE = 12; 
+const LEFT_SLOPE = 18; 
 
 let tileMap = 
 	{
@@ -197,9 +200,9 @@ function loadWorld()
 function keydownHandler(key) {
     //w
 
-    if(key.keyCode == 87 && player.isJumping == false) {
-        player.isJumping = true;
-		player.yVel = -2;
+    if(key.keyCode == 87 && playerOnGround() ) {
+      player.isJumping = true;
+			player.yVel = -2;
     }
 
     //a
@@ -233,19 +236,23 @@ function moveCharacter()
 	var newPosX = player.x + (player.speed * player.xVel);
 	var newPosY = player.y + (player.speed * player.yVel);
 
-	//in bounds check so we dont fall off the world
-	if( newPosY < 500 )
-	{
-			player.y += player.speed * player.yVel;
-	}else
-	{
+	if( playerOnGround( newPosX, newPosY ))
+		{
+			
 		player.isJumping = false;
+		player.yVel = 0; 
+		}
+	
+	else
+	{
+		player.y += player.speed * player.yVel;
 	}
 
-	if( player.yVel < 2 )
+	
+	if( player.yVel < 0 || playerOnGround() == false )
 	{
 		player.yVel += .05;
-	}
+	} 
 
 	if( player.moveLeft == true )
 	{
@@ -398,3 +405,42 @@ function update_camera() {
   stage.y = -Math.max(0, Math.min(world.worldHeight*GAME_SCALE - GAME_HEIGHT, -stage.y));
 }
 */ 
+
+
+function playerOnGround( posX, posY )
+	{
+		
+	// Find the location of the tile the player is currently on
+	var xTileLocation = posX % 34; 
+	var yTileLocation = (posY % 34); 
+	
+	// Find the tile index the player is on
+	var tileIndex = yTileLocation * tileMap.width + xTileLocation; 
+	
+	// Check if the tile we're on is solid ground 
+	if( tileIndex == FLAT_GROUND ||
+			tileIndex == RIGHT_SLOPE ||
+			tileIndex == LEFT_SLOPE )
+		{
+		/*
+		switch( tileIndex )
+			{
+				
+			case FLAT_GROUND:
+				
+			
+			case RIGHT_SLOPE:
+			
+			case LEFT_SLOPE: 
+			}
+			*/ 
+		player.yVel = 0; 
+		
+		player.isJumping = false; 
+		return true; 
+		}
+	// Otherwise, we're in the air
+			
+	player.isJumping = true; 
+	return false; 
+	}
