@@ -424,3 +424,13 @@ function playerOnGround( posX, posY )
 	// Otherwise, we're in the air
 	return false; 
 	}
+	
+/*
+* Provide functionality for player hitting bottom of a tile. 
+*/ 
+function playerHitHead( posX, posY )
+	{
+		
+	var xTileLocation = Math.floor( posX / 34 ); 
+	var yTileLocation = Math.floor( posY / 34 ); 
+	}
