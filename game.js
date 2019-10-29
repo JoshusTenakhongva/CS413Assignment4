@@ -96,6 +96,7 @@ var MOVE_NONE = 0;
 const FLAT_GROUND = 15; 
 const RIGHT_SLOPE = 12; 
 const LEFT_SLOPE = 18; 
+const BEDROCK = 14; 
 
 let tileMap = 
 	{
@@ -118,7 +119,7 @@ let tileMap =
 		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 18, 14, 
 		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 18, 14, 13, 
 		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 18, 14, 13, 13, 
-		1, 1, 17, 17, 17, 17, 17, 17, 17, 17, 17, 18, 14, 13, 13, 13, 
+		1, 1, 17, 17, 17, 17, 18, 12, 17, 17, 17, 18, 14, 13, 13, 13, 
 		1, 18, 15, 15, 15, 15, 15, 15, 15, 15, 15, 14, 13, 13, 13, 13
 		]
 	}	
@@ -246,12 +247,12 @@ function moveCharacter()
 		
 	player.y += player.speed * player.yVel;
 
-	if( player.moveLeft == true )
+	if( player.moveLeft == true && !leftBlocked)
 	{
 		player.x += 1.5;
 	}
 
-	if( player.moveRight == true)
+	if( player.moveRight == true && !rightBlocked)
 	{
 		player.x -= 1.5;
 	}
@@ -413,10 +414,32 @@ function playerOnGround( posX, posY )
 	// Find that tile's ID 
 	var tileOn = tileMap.tiles[ tileLocation ]; 
 	
+	//Check to see if block to the right of the player is blocked
+	if( tileMap.tiles[ tileLocation - 16 ] == RIGHT_SLOPE )
+	{
+		rightBlocked = true;
+		console.log("right blocked\n");
+	}
+	else
+	{
+		rightBlocked = false;
+	}
+	
+	//Check to see if block to the right of the player is blocked
+	if( tileMap.tiles[ tileLocation - 16 ] == LEFT_SLOPE )
+	{
+		leftBlocked = true;
+		console.log("left blocked\n");
+	}
+	else
+	{
+		leftBlocked = false;
+	}
+	
 	// Check if the tile we're's ID is a solid platform 
 	if( tileOn == FLAT_GROUND ||
 			tileOn == RIGHT_SLOPE ||
-			tileOn == LEFT_SLOPE )
+			tileOn == LEFT_SLOPE || tileOn == BEDROCK)
 		{
 		
 		return true; 
