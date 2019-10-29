@@ -157,7 +157,7 @@ function loadWorld()
 
     tileSet[ i ] = new PIXI.Texture(
       resources.tiles.texture,
-      new PIXI.Rectangle( x * tileSize, y * tileSize, tileSize, tileSize )
+      new PIXI.Rectangle( x * tileSize + 1, y * tileSize + 1, tileSize, tileSize )
       );
     }
 		
@@ -168,7 +168,7 @@ function loadWorld()
 		for( let x = 0; x < tileMap.height; x++ )
 			{
 
-			let tile = tileMap.tiles[ y * tileMap.width + x ]; 
+			let tile = tileMap.tiles[ y * tileMap.width + x]; 
 			let sprite = new PIXI.Sprite( tileSet[ tile - 1 ]); 
 			sprite.anchor.x = 0.0; 
 			sprite.anchor.y = 0.0; 
