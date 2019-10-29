@@ -150,9 +150,6 @@ function loadWorld()
   const tileSize = 34;
 	let tileSet = [];
 
-  //var tu = new TileUtilities(PIXI);
-  //world = tu.makeTiledWorld( "testroom_json", "tile_assets/tileset.png" );
-
   for( let i = 0; i < tileSetWidth * tileSetHeight; i++ )
     {
     let x = i % tileSetWidth;
@@ -181,14 +178,6 @@ function loadWorld()
 			}		
 		}
 
-	
-	/*
-  player = new PIXI.Sprite(PIXI.loader.resources.player_character.texture);
-  player.x = GAME_WIDTH / 2;
-  player.y = GAME_HEIGHT / 2;
-  
-	*/ 
-	
   //world.addChild( playerVis );
 	world.addChild( background ); 
 
@@ -199,9 +188,9 @@ function loadWorld()
 function keydownHandler(key) {
     //w
 		// Check if the player hits the w key and they are on the ground 
-    if(key.keyCode == 87 && playerOnGround( player.x, player.y )) {
-      player.isJumping = true;
+    if( key.keyCode == 87 && playerOnGround( player.x, player.y )) {
 			player.yVel = -2;
+      player.isJumping = true;
     }
 
     //a
@@ -251,10 +240,11 @@ function moveCharacter()
 	
 	// If the player is not on the ground or is jumping
 	else
-	{
+		{
 		player.yVel += .05;
-		player.y += player.speed * player.yVel;
-	}
+		}
+		
+	player.y += player.speed * player.yVel;
 
 	if( player.moveLeft == true )
 	{
@@ -266,8 +256,8 @@ function moveCharacter()
 		player.x -= 1.5;
 	}
 
-	playerVis.x = player.x;
-	playerVis.y = player.y;
+	playerVis.x = player.x - 15;
+	playerVis.y = player.y - 45;
 
 }
 
@@ -419,20 +409,18 @@ function playerOnGround( posX, posY )
 	
 	// Find the tile index the player is on
 	var tileLocation = yTileLocation * tileMap.width + xTileLocation; 
+	
+	// Find that tile's ID 
 	var tileOn = tileMap.tiles[ tileLocation ]; 
 	
-	// Check if the tile we're on is solid ground 
+	// Check if the tile we're's ID is a solid platform 
 	if( tileOn == FLAT_GROUND ||
 			tileOn == RIGHT_SLOPE ||
 			tileOn == LEFT_SLOPE )
 		{
-		player.yVel = 0; 
 		
-		player.isJumping = false; 
 		return true; 
 		}
 	// Otherwise, we're in the air
-			
-	player.isJumping = true; 
 	return false; 
 	}
