@@ -300,7 +300,7 @@ function creditsButtonClickHandler( e )
 
 	stage.removeChild( titleScreen );
 	stage.addChild( creditsScreen );
-  var creditsText = new PIXI.Text( "Game was made by\nKellar ...\nAndrew ...\nJoshus Tenakhongva" );
+  var creditsText = new PIXI.Text( "Game was made by\nKellar ...\nAndrew Munoz\nJoshus Tenakhongva" );
   creditsText.position.x = 400;
 	creditsText.position.y = 200;
 	creditsText.anchor.x = 0.5;
