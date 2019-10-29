@@ -19,14 +19,26 @@ titleScreen.scale.x = GAME_SCALE/4;
 titleScreen.scale.y = GAME_SCALE/4;
 
 var gameScreen = new PIXI.Container();
-gameScreen.scale.x = GAME_SCALE;
-gameScreen.scale.y = GAME_SCALE;
+gameScreen.scale.x = GAME_SCALE/4;
+gameScreen.scale.y = GAME_SCALE/4;
 
 var creditsScreen = new PIXI.Container();
+creditsScreen.scale.x = GAME_SCALE/4; 
+creditsScreen.scale.Y = GAME_SCALE/4;
 
 var tutorialScreen = new PIXI.Container();
+tutorialScreen.scale.x = GAME_SCALE/4; 
+tutorialScreen.scale.Y = GAME_SCALE/4; 
 
 stage.addChild( titleScreen );
+
+PIXI.loader
+  .add( 'tilemap_json', 'tile_assets/tilemap.json' )
+	.add( 'testroom_json', 'tile_assets/testroom.json' )
+  .add( 'player_character',     'player_character.png' )
+	.add( 'tileset',  'tile_assets/tileset.png' )
+	.add( 'tiles', 'tile_assets/tileset_2.png' )
+  .load( loadWorld );
 
 /*
 * Create menu buttons
@@ -67,7 +79,7 @@ creditsButton.anchor.y = 0.5;
 // create back button
 var backButton = new PIXI.Sprite( PIXI.Texture.fromImage( "backButton.png" ));
 backButton.interactive = true;
-backButton.scale.x = GAME_SCALE/20; 
+backButton.scale.x = GAME_SCALE/20;
 backButton.scale.y = GAME_SCALE/20;
 backButton.on( 'mousedown', backButtonClickHandler );
 
@@ -77,7 +89,20 @@ var MOVE_UP = 3;
 var MOVE_DOWN = 4;
 var MOVE_NONE = 0;
 
-var world;
+var world = PIXI.Container(); 
+let tileMap = 
+	{
+	width: 4, 
+	height: 4, 
+	tiles: 
+		[ 
+		1, 1, 1, 1, 
+		1, 1, 1, 1, 
+		1, 1, 1, 1, 
+		1, 1, 1, 1, 
+		]
+	}	
+
 var player;
 player = {//player's metadata
 		x: 200,
@@ -97,44 +122,65 @@ var gameRunning = false;
 
 PIXI.SCALE_MODES.DEFAULT = PIXI.SCALE_MODES.NEAREST;
 
-PIXI.loader
-  .add( 'tilemap_json', 'tilemap.json' )
-	.add( 'testroom_json', 'testroom.json' )
-  .add( 'blob',     'player_character.png' )
-	.add( 'tileset',  'tileset.png' )
-	.add( 'tiles', 'tileset_2.png' )
-  .load(ready);
-	
-
-function ready()
+function loadWorld()
 {
-	
-  var tu = new TileUtilities(PIXI);
-  world = tu.makeTiledWorld( "tilemap_json", "tileset_2.png" );
+	let resources = PIXI.loader.resources; 
+	const tileSetWidth = 6;
+  const tileSetHeight = 3;
+  const tileSize = 32;
+	let tileSet = [];
 
-	/*
-  var blob = world.getObject("blob");
+  var tu = new TileUtilities(PIXI);
+  world = tu.makeTiledWorld( "testroom_json", "tile_assets/tileset.png" );
+
+  for( let i = 0; i < tileSetWidth * tileSetHeight; i++ )
+    {
+    let x = i % tileSetWidth;
+    let y = Math.floor( i / tileSetWidth );
+
+    tileSet[ i ] = new PIXI.Texture(
+      resources.tiles.texture,
+      new PIXI.Rectangle( x * tileSize, y * tileSize, tileSize, tileSize )
+      );
+    }
+		
+	var background = new PIXI.Container(); 
+	for( let y = 0; y < tileMap.width; y++ )
+		{
+			
+		for( let x = 0; x < tileMap.height; x++ )
+			{
+
+			let tile = tileMap.tiles[ y * tileMap.width + x ]; 
+			let sprite = new PIXI.Sprite( tileSet[ tile ]); 
+			sprite.x = x * tileSize; 
+			sprite.y = y * tileSize; 
+			sprite.scale.x = 0.5; 
+			sprite.scale.y = 0.5; 
+			background.addChild( sprite ); 
+			}		
+		}
+
 	
-  player = new PIXI.Sprite(PIXI.loader.resources.blob.texture);
-	
-  player.x = blob.x;
-  player.y = blob.y;
-  player.anchor.x = 0.0;
+
+  player = new PIXI.Sprite(PIXI.loader.resources.player_character.texture);
+  player.x = GAME_WIDTH / 2;
+  player.y = GAME_HEIGHT / 2;
+  player.anchor.x = 0.5;
   player.anchor.y = 1.0;
 
-  // Find the entity layer
-  var entity_layer = world.getObject("Entities");
-  entity_layer.addChild(player);	
+  world.addChild(player);
+	world.addChild( background ); 
 
-	*/ 
   player.direction = MOVE_NONE;
   player.moving = false;
-	
-  
+
+
 }
 
 function keydownHandler(key) {
     //w
+
     if(key.keyCode == 87 && player.isJumping == false) {
         player.isJumping = true;
 		player.yVel = -2;
@@ -149,7 +195,7 @@ function keydownHandler(key) {
     if(key.keyCode == 68) {
 		player.moveLeft = true;
     }
-}	
+}
 
 function keyupHandler(key) {
     //a
@@ -161,43 +207,43 @@ function keyupHandler(key) {
     if(key.keyCode == 68) {
 		player.moveLeft = false;
     }
-} 
-	
-document.addEventListener('keydown', keydownHandler);	
+}
+
+document.addEventListener('keydown', keydownHandler);
 document.addEventListener('keyup', keyupHandler);
 
 function moveCharacter()
-{	
+{
 	var newPosX = player.x + (player.speed * player.xVel);
 	var newPosY = player.y + (player.speed * player.yVel);
 
 	//in bounds check so we dont fall off the world
-	if(  newPosY < 500 )
+	if( newPosY < 500 )
 	{
 			player.y += player.speed * player.yVel;
 	}else
 	{
 		player.isJumping = false;
 	}
-		
+
 	if( player.yVel < 2 )
 	{
 		player.yVel += .05;
 	}
-	
+
 	if( player.moveLeft == true )
 	{
 		player.x += 1.5;
 	}
-	
+
 	if( player.moveRight == true)
 	{
 		player.x -= 1.5;
 	}
-	
+
 	playerVis.x = player.x;
 	playerVis.y = player.y;
-	
+
 }
 
 function animate(timestamp)
@@ -213,7 +259,7 @@ function animate(timestamp)
 function GameLoop()
 {
 	requestAnimationFrame(GameLoop);
-	update_camera();
+	//update_camera();
 }
 
 initializeTitleScreen();
@@ -257,13 +303,13 @@ function startButtonClickHandler( e )
   // Remove the title screen from the stage
 	stage.removeChild( titleScreen );
   // Add the container that holds the main game to the stage
-	
+
 	GameLoop();
 	stage.addChild( gameScreen );
 	stage.addChild( world );
 	gameScreen.addChild( playerVis );
 	gameRunning = true;
-	
+
 	renderer.backgroundColor = 0xffb18a;
 	gameScreen.addChild( backButton );
 	}
@@ -312,7 +358,7 @@ function creditsButtonClickHandler( e )
 	}
 
 /*
-* Desc: When clicked, will bring the player back to the main menu. 
+* Desc: When clicked, will bring the player back to the main menu.
 */
 function backButtonClickHandler( e )
 	{
@@ -327,11 +373,12 @@ function backButtonClickHandler( e )
 	}
 /*
 *	Moves the camera relative to the player's position
-*/	
+*/
+/*
 function update_camera() {
   stage.x = -player.x*GAME_SCALE + GAME_WIDTH/2 - player.width/2*GAME_SCALE;
   stage.y = -player.y*GAME_SCALE + GAME_HEIGHT/2 + player.height/2*GAME_SCALE;
   stage.x = -Math.max(0, Math.min(world.worldWidth*GAME_SCALE - GAME_WIDTH, -stage.x));
   stage.y = -Math.max(0, Math.min(world.worldHeight*GAME_SCALE - GAME_HEIGHT, -stage.y));
 }
-
+*/ 
