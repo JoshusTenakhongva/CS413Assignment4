@@ -500,7 +500,7 @@ function creditsButtonClickHandler( e )
 	stage.addChild( creditsScreen );
 	
 	// Create the text we want to be displayed 
-  var creditsText = new PIXI.Text( "Game was made by\nKellar ...\nAndrew Munoz\nJoshus Tenakhongva" );
+  var creditsText = new PIXI.Text( "Game was made by\nKeller Mikkelson\nAndrew Munoz\nJoshus Tenakhongva" );
   creditsText.position.x = 400/4;
 	creditsText.position.y = 200/3;
 	creditsText.scale.x = 0.5; 
