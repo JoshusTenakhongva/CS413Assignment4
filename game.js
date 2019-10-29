@@ -393,6 +393,7 @@ function backButtonClickHandler( e )
 	stage.removeChild( gameScreen );
 	stage.removeChild( creditsScreen );
 	stage.removeChild( tutorialScreen );
+	stage.removeChild( world ); 
 	gameRunning = false;
 	renderer.backgroundColor = 0x6ac48a;
 	}
