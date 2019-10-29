@@ -14,21 +14,30 @@ var stage = new PIXI.Container();
 stage.scale.x = GAME_SCALE;
 stage.scale.y = GAME_SCALE;
 
+
 var titleScreen = new PIXI.Container();
+/*
 titleScreen.scale.x = GAME_SCALE/4;
 titleScreen.scale.y = GAME_SCALE/4;
+*/ 
 
 var gameScreen = new PIXI.Container();
+/* 
 gameScreen.scale.x = GAME_SCALE/4;
 gameScreen.scale.y = GAME_SCALE/4;
+*/ 
 
 var creditsScreen = new PIXI.Container();
+/*
 creditsScreen.scale.x = GAME_SCALE/4; 
 creditsScreen.scale.Y = GAME_SCALE/4;
+*/ 
 
 var tutorialScreen = new PIXI.Container();
-tutorialScreen.scale.x = GAME_SCALE/4; 
-tutorialScreen.scale.Y = GAME_SCALE/4; 
+/*
+tutorialScreen.scale.x = 0.25; 
+tutorialScreen.scale.Y = 0.25; 
+ */ 
 
 var world = new PIXI.Container(); 
 world.scale.x = 0.25; 
@@ -38,10 +47,8 @@ stage.addChild( titleScreen );
 
 PIXI.loader
   .add( 'tilemap_json', 'tile_assets/tilemap.json' )
-	.add( 'testroom_json', 'tile_assets/testroom.json' )
   .add( 'player_character',     'player_character.png' )
-	.add( 'tileset',  'tile_assets/tileset.png' )
-	.add( 'tiles', 'tile_assets/tileset_2.png' )
+	.add( 'tileSet', 'tile_assets/tileset_2.png' )
   .load( loadWorld );
 
 /*
@@ -121,8 +128,15 @@ let tileMap =
 		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 18, 14, 13, 13, 
 		1, 1, 17, 17, 17, 17, 18, 12, 17, 17, 17, 18, 14, 13, 13, 13, 
 		1, 18, 15, 15, 15, 15, 15, 15, 15, 15, 15, 14, 13, 13, 13, 13
+		], 
+		
+	tutorialTiles: 
+		[
+		15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15 
 		]
 	}	
+	
+var tileSet = []; 
 
 var player;
 player = {//player's metadata
@@ -149,7 +163,6 @@ function loadWorld()
 	const tileSetWidth = 6;
   const tileSetHeight = 3;
   const tileSize = 34;
-	let tileSet = [];
 
   for( let i = 0; i < tileSetWidth * tileSetHeight; i++ )
     {
@@ -157,7 +170,7 @@ function loadWorld()
     let y = Math.floor( i / tileSetWidth );
 
     tileSet[ i ] = new PIXI.Texture(
-      resources.tiles.texture,
+      resources.tileSet.texture,
       new PIXI.Rectangle( x * tileSize + 1, y * tileSize + 1, tileSize, tileSize )
       );
     }
@@ -294,7 +307,7 @@ function initializeTitleScreen()
   titleScreen.addChild( creditsButton );
 
   // Create the text that will appear on the start menu
-	var titleText = new PIXI.Text( "Video Game" );
+	var titleText = new PIXI.Text( "Simple Platformer" );
 	titleText.position.x = 400/4;
 	titleText.position.y = 200/4;
 	titleText.scale.x = GAME_SCALE/20;
@@ -340,16 +353,44 @@ function tutorialButtonClickHandler( e )
 
 	stage.removeChild( titleScreen );
 	stage.addChild( tutorialScreen );
+	
+	const tileSize = 34/2; 
 
-  var tutorialText = new PIXI.Text( "Tutorial Text" );
-  tutorialText.position.x = 400;
-	tutorialText.position.y = 200;
+  var tutorialText = new PIXI.Text( "Use 'a' and 'd' to move left and right\nUse 'w' to jump" );
+	tutorialScreen.addChild( tutorialText );
+  tutorialText.position.x = 400/4;
+	tutorialText.position.y = 500/4;
+	tutorialText.scale.x = 0.4; 
+	tutorialText.scale.y = 0.4; 
 	tutorialText.anchor.x = 0.5;
 	tutorialText.anchor.y = 0.5;
+	
+	
+	var background = new PIXI.Container(); 
 
+		for( let x = 0; x < tileMap.height; x++ )
+			{
+
+			let tile = tileMap.tutorialTiles[ x ]; 
+			let sprite = new PIXI.Sprite( tileSet[ tile - 1 ]); 
+			
+			sprite.anchor.x = 0.0; 
+			sprite.anchor.y = 0.0; 
+			
+			sprite.x = (x * ( tileSize )); 
+			sprite.y = 80; 
+			sprite.scale.x = 0.5; 
+			sprite.scale.y = 0.5; 
+			background.addChild( sprite ); 
+			
+			}
+
+	gameRunning = true; 
 	renderer.backgroundColor = 0x7dadff;
-  tutorialScreen.addChild( tutorialText );
+  tutorialScreen.addChild( playerVis ); 
   tutorialScreen.addChild( backButton );
+	tutorialScreen.addChild( background ); 
+	
 	}
 
 /*
@@ -362,9 +403,11 @@ function creditsButtonClickHandler( e )
 
 	stage.removeChild( titleScreen );
 	stage.addChild( creditsScreen );
-  var creditsText = new PIXI.Text( "Game was made by\nKellar ...\nAndrew ...\nJoshus Tenakhongva" );
-  creditsText.position.x = 400;
-	creditsText.position.y = 200;
+  var creditsText = new PIXI.Text( "Game was made by\nKellar ...\nAndrew Munoz\nJoshus Tenakhongva" );
+  creditsText.position.x = 400/4;
+	creditsText.position.y = 200/3;
+	creditsText.scale.x = 0.5; 
+	creditsText.scale.y - 0.5; 
 	creditsText.anchor.x = 0.5;
 	creditsText.anchor.y = 0.5;
 
@@ -448,12 +491,3 @@ function playerOnGround( posX, posY )
 	return false; 
 	}
 	
-/*
-* Provide functionality for player hitting bottom of a tile. 
-*/ 
-function playerHitHead( posX, posY )
-	{
-		
-	var xTileLocation = Math.floor( posX / 34 ); 
-	var yTileLocation = Math.floor( posY / 34 ); 
-	}
