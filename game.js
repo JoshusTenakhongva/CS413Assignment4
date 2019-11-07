@@ -1,5 +1,7 @@
 const GAME_WIDTH = 800;
+const CENTER_X = GAME_WIDTH / 2; 
 const GAME_HEIGHT = 600;
+const CENTER_Y = GAME_HEIGHT / 2; 
 const GAME_SCALE = 4;
 
 var gameport = document.getElementById( "gameport" );
@@ -13,6 +15,8 @@ gameport.appendChild( renderer.view );
 const PC_START_X = 50;
 const PC_START_Y = 50;
 const CAMERA_ZOOM = false;
+const PAN_DIVISOR = 2; 
+const PAN_LIMITER = 250; 
 const W_KEY = 87;
 const A_KEY = 65;
 const S_KEY = 83;
@@ -35,7 +39,11 @@ player =
   moveDown: false,
   moveRight: false,
   moveLeft: false,
-  aimRotation: 0
+  aimRotation: 0,
+  width: 30,
+  height: 45,
+	relativeX: 0, 
+	relativeY: 0
   };
 
 /*******************************************************
@@ -128,8 +136,11 @@ function animate(timestamp)
 	requestAnimationFrame(animate);
   if( gameRunning )
     {
+		//calculateRelativePC_position();
+		updateCamera();		
     playerMovementHandler();
     calculate_PC_aim();
+    
 
     for( var i = 0; i < bullets.length; i++ )
       {
@@ -137,7 +148,12 @@ function animate(timestamp)
       handleBullet( bullets[ i ] );
       }
     }
-	renderer.render(stage);
+		
+  document.getElementById( "mousex" ).innerHTML = gameplayScreen.x;
+  document.getElementById( "mousey" ).innerHTML = gameplayScreen.y;
+  document.getElementById( "charx" ).innerHTML = player.relativeX;
+  document.getElementById( "chary" ).innerHTML = player.relativeY;
+  renderer.render(stage);
  }
 
 initializeTitleScreen();
@@ -152,7 +168,7 @@ document.addEventListener( 'keyup', keyup_PC_movement );
 *************************************************************************/
 
 /*************************
-*     Player functions
+*     Shooting functions
 ***************************/
 /*
 * Desc: Used to find the position of the mouse and updates to mousePosition variable
@@ -185,10 +201,10 @@ function handleBullet( bullet )
 
   moveBullet( bullet );
 
-  if( bulletX > GAME_WIDTH ||
-      bulletX < 0 ||
-      bulletY > GAME_HEIGHT ||
-      bulletY < 0 )
+  if( bulletX > player.x + CENTER_X ||
+      bulletX < player.x - CENTER_X ||
+      bulletY > player.y + CENTER_Y ||
+      bulletY < player.y - CENTER_Y )
     {
     gameplayScreen.removeChild( bullet );
     }
@@ -204,13 +220,19 @@ function moveBullet( bullet )
 function calculate_PC_aim()
   {
 
-  var xDirection = mousePosition.x - player.x;
-  var yDirection = mousePosition.y - player.y;
+  var xDirection; 
+  var yDirection;
+	xDirection = mousePosition.x - player.relativeX; //player.x;
+	yDirection = mousePosition.y - player.relativeY; //player.y;
+	
   var angle = Math.atan2( yDirection, xDirection );
-  player.aimRotation = angle;
+  player.aimRotation = angle - 0.025;
   PC_blaster.rotation = angle + 1.57;
   }
 
+/*******************************
+*       PLayer movement functions
+*******************************/
 function keydown_PC_movement( key )
   {
 
@@ -282,7 +304,6 @@ function initializePlayer( screen )
 /******************************
 *     Menu functions
 *******************************/
-
 /*
 * Desc: Initializes the opening title screen for the game
 */
@@ -402,3 +423,27 @@ function menuButtonClickHandler( e )
 	renderer.backgroundColor = 0x6ac48a;
   gameRunning = false;
 	}
+
+/************************************
+*        Camera Movement
+**************************************/
+function updateCamera()
+  {
+	
+	var panX = ( mousePosition.x - CENTER_X ); 
+	var panY = ( mousePosition.y - CENTER_Y );
+	if( panX > PAN_LIMITER ) { panX = PAN_LIMITER; }
+	if( panX < -PAN_LIMITER ) { panX = -PAN_LIMITER; } 
+	if( panY > PAN_LIMITER ) { panY = PAN_LIMITER; } 
+	if( panY < -PAN_LIMITER ) { panY = -PAN_LIMITER; } 
+  gameplayScreen.x = (-player.x + CENTER_X + -player.width/2) - ( panX/PAN_DIVISOR );
+  gameplayScreen.y = (-player.y + CENTER_Y + -player.height/2) - ( panY/PAN_DIVISOR );
+	
+	player.relativeX = CENTER_X + -player.width/2 - ( panX/PAN_DIVISOR ); 
+	player.relativeY = CENTER_Y + -player.height/2 - ( panY/PAN_DIVISOR ); 
+  }
+	
+	
+	
+	
+//	
