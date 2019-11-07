@@ -1,8 +1,10 @@
+/*********************************************
+*			Gameport settings 
+**********************************************/
 const GAME_WIDTH = 800;
 const CENTER_X = GAME_WIDTH / 2; 
 const GAME_HEIGHT = 600;
 const CENTER_Y = GAME_HEIGHT / 2; 
-const GAME_SCALE = 4;
 
 var gameport = document.getElementById( "gameport" );
 var renderer = PIXI.autoDetectRenderer({ GAME_WIDTH, GAME_HEIGHT, backgroundColor: 0x6ac48a });
@@ -12,54 +14,92 @@ gameport.appendChild( renderer.view );
 /*******************************************************
 *     Constants
 *******************************************************/
+// The starting x and y coordinates for the player 
 const PC_START_X = 50;
 const PC_START_Y = 50;
+
+// A boolean that determines if the camera will be zoomed in or not 
 const CAMERA_ZOOM = false;
-const PAN_DIVISOR = 2; 
-const PAN_LIMITER = 250; 
+// The amount that we want our camera to be zoomed in 
+const GAME_SCALE = 4;
+
+// Keyboard values for the movement keys 
 const W_KEY = 87;
 const A_KEY = 65;
 const S_KEY = 83;
 const D_KEY = 68;
+
+// The maximum amount of bullets the player can hold at once 
 const BULLET_CAP = 6;
+// The speed that the bullets will move at 
 const BULLET_SPEED = 13;
 
 /*****************************************************
-*     Variables
+*     Global Variables
 ******************************************************/
+// Variable that we can use to get the x and y position of the mouse 
 var mousePosition = getMousePosition();
+
+// Determines if the game is being played rather than in a menu 
 var gameRunning = false;
-var player
-player =
-  {
-  x: PC_START_X,
-  y: PC_START_Y,
-  speed: 1.5,
-  moveUp: false,
-  moveDown: false,
-  moveRight: false,
-  moveLeft: false,
-  aimRotation: 0,
-  width: 30,
-  height: 45,
-	relativeX: 0, 
-	relativeY: 0
-  };
+
+// The sensitivity of the camera
+// The higher the number, the more sensitive the camera is 
+/*
+* ONLY WORKS ON A SCALE OF 1 - 10
+*/ 
+var camera_sensitivity = 7;  
+
+// The offset that we will allow for the mouse to pan the camera 
+// If the player wants to turn off mouse camera movement, set this to 0
+var pan_offset = 250; 
 
 /*******************************************************
-* Container Initialization
+* 		Container Initialization
 ******************************************************/
 /*
 Different containers for different menus
 */
+// main container 
 var stage = new PIXI.Container();
 
+// Main title screen
 var titleScreen = new PIXI.Container();
+
+/*
+*  Main parent for all gameplay objects
+*
+* Constant gameplay objects will be in this container like...
+* 	- The player character
+* 	- Their bullets 
+* 	- HUD elements 
+*/ 
 var gameplayScreen = new PIXI.Container();
+
+// Screen that displays the credits 
 var creditsScreen = new PIXI.Container();
+
+// Screen that displays the tutorial 
 var tutorialScreen = new PIXI.Container();
+
+// Screen that lets the player change the options 
+var optionsScreen = new PIXI.Container(); 
+
+// Screen that appears if the player wants to pause during gameplay 
 var pauseMenu = new PIXI.Container();
 
+/*
+* Useful if we want to incorporate different levels 
+*
+* Level specific gameplay objects willbe in this container like... 
+* 	- Enemies
+* 	- Their projectiles
+* 	- Tilemaps
+* 	- Sounds
+*/ 
+var level_1 = new PIXI.Container();
+
+// Changes the zoom of the gameplay screen 
 if( CAMERA_ZOOM )
   {
 
@@ -67,11 +107,10 @@ if( CAMERA_ZOOM )
   gameplayScreen.scale.y = GAME_SCALE;
   }
 
-var level_1 = new PIXI.Container();
-
 /*
 * Create title Screen buttons
 */
+// Button that starts the game 
 var startButton = new PIXI.Sprite( PIXI.Texture.fromImage( "startButton.png" ));
 startButton.interactive = true;
 startButton.on( 'mousedown', startButtonClickHandler );
@@ -80,6 +119,7 @@ startButton.position.y = 300;
 startButton.anchor.x = 0.5;
 startButton.anchor.y = 0.5;
 
+// Button that takes the player to the tutorial 
 var tutorialButton = new PIXI.Sprite( PIXI.Texture.fromImage( "tutorialButton.png" ));
 tutorialButton.interactive = true;
 tutorialButton.on( 'mousedown', tutorialButtonClickHandler );
@@ -88,6 +128,7 @@ tutorialButton.position.y = 500;
 tutorialButton.anchor.x = 0.5;
 tutorialButton.anchor.y = 0.5;
 
+// Button that takes the player to the credits screen 
 var creditsButton = new PIXI.Sprite( PIXI.Texture.fromImage( "creditsButton.png" ));
 creditsButton.interactive = true;
 creditsButton.on( 'mousedown', creditsButtonClickHandler );
@@ -96,10 +137,12 @@ creditsButton.position.y = 500;
 creditsButton.anchor.x = 0.5;
 creditsButton.anchor.y = 0.5;
 
+// Button that takes the player back to the main menu 
 var menuButton = new PIXI.Sprite( PIXI.Texture.fromImage( "menuButton.png" ));
 menuButton.interactive = true;
 menuButton.on( 'mousedown', menuButtonClickHandler );
 
+// Begin the game by starting at the title screen 
 stage.addChild( titleScreen );
 
 /****************************************************
@@ -110,23 +153,61 @@ stage.addChild( titleScreen );
 /***********************************************************
 *     Character Initialization
 ************************************************************/
+
+
+/*
+* An object that represents the information about the player 
+*/ 
+var player =
+  {
+	
+	// Keeps track of the actual position of the player
+  x: PC_START_X,
+  y: PC_START_Y,
+	
+	// The speed the player will move at 
+  speed: 1.5,
+	
+	// Booleans that determine which direction the player is moving 
+  moveUp: false,
+  moveDown: false,
+  moveRight: false,
+  moveLeft: false,
+	
+	// The radian rotation value of the player's aim relative to the player 
+  aimRotation: 0,
+	
+	// The height and width of the player sprite / hitbox
+  width: 30,
+  height: 45,
+	
+	// The relative position of the player to the camera. VERY IMPORTANT
+	relativeX: 0, 
+	relativeY: 0
+  };
+	
+// The sprite that represents the player character's body 
 var PC_body = new PIXI.Sprite( PIXI.Texture.fromImage( "playerCharacter.png" ));
 PC_body.anchor.x = 0.5;
 PC_body.anchor.y = 0.5;
 PC_body.position.x = player.x;
 PC_body.position.y = player.y;
 
+// The sprite that represents the gun of the player character 
 var PC_blaster = new PIXI.Sprite( PIXI.Texture.fromImage( "blaster.png" ));
 PC_blaster.anchor.x = 0.5;
 PC_blaster.anchor.y = 1.2;
 PC_blaster.position.x = player.x;
 PC_blaster.position.y = player.y;
 
+// An array that holds all of the player sprites, so they can all be updated easily
 var PC_parts = [ PC_body, PC_blaster ];
 
 // Variable that keeps track of how many bullets are left
 var bulletNum = BULLET_CAP;
-var bullets = [];
+
+// An array that holds all of the live bullets shot by the PC 
+var PC_live_bullets = [];
 
 /************************************************************
 *     Game Loop
@@ -134,37 +215,46 @@ var bullets = [];
 function animate(timestamp)
 {
 	requestAnimationFrame(animate);
+	
+	// The core gameloop 
   if( gameRunning )
     {
-		//calculateRelativePC_position();
+		/*
+		* The order of these 3 functions is important
+		* 
+		* updateCamera(): Determines relative Player position 
+		* playerMovementHandler(): Moves the player (relative) position
+		* calculate_PC_aim(): Reliant on relative player position 
+		*/ 
 		updateCamera();		
     playerMovementHandler();
     calculate_PC_aim();
-    
 
-    for( var i = 0; i < bullets.length; i++ )
+		// Move the bullets and check if they're collided with anything or has 
+		// gone off screen 
+    for( var i = 0; i < PC_live_bullets.length; i++ )
       {
 
-      handleBullet( bullets[ i ] );
+      handleBullet( PC_live_bullets[ i ] );
       }
     }
-		
-  document.getElementById( "mousex" ).innerHTML = gameplayScreen.x;
-  document.getElementById( "mousey" ).innerHTML = gameplayScreen.y;
-  document.getElementById( "charx" ).innerHTML = player.relativeX;
-  document.getElementById( "chary" ).innerHTML = player.relativeY;
   renderer.render(stage);
  }
 
+/************************************
+*			Functions that will be run upon start up
+************************************/ 
+calculateCameraSensitivity(); 
 initializeTitleScreen();
 animate();
 
+// Add all the event listeners for player controls 
 document.addEventListener( 'mousedown', player_shoot );
 document.addEventListener( 'keydown', keydown_PC_movement );
 document.addEventListener( 'keyup', keyup_PC_movement );
 
 /***********************************************************************
-*     Functions
+*     All Functions
 *************************************************************************/
 
 /*************************
@@ -175,13 +265,20 @@ document.addEventListener( 'keyup', keyup_PC_movement );
 */
 function getMousePosition(){ return renderer.plugins.interaction.mouse.global; }
 
+/*
+* Desc: Reduncant function to help with code readability 
+*/ 
 function player_shoot()
   {
 
   spawnBullet( "bullet.png" );
   }
 
-//
+/*
+* Desc: Spawns a bullet on the player's location 
+* Input: 
+* 	- image: The png that we want the bullet to look like 
+*/ 
 function spawnBullet( image )
   {
 
@@ -190,97 +287,161 @@ function spawnBullet( image )
   bullet.position.x = player.x;
   bullet.position.y = player.y;
   bullet.rotation = player.aimRotation;
-  bullets.push( bullet );
+  PC_live_bullets.push( bullet );
   }
 
+/*
+* Desc: General function that handles all of the bullet functions 
+* Input: 
+* 	- bullet: The specific bullet that we want to handle 
+*/ 
 function handleBullet( bullet )
   {
 
+	// Save the position of the bullet, so we can use this variable a lot 
   var bulletX = bullet.position.x;
   var bulletY = bullet.position.y;
 
+	// Move the bullet toward its destination 
   moveBullet( bullet );
 
-  if( bulletX > player.x + CENTER_X ||
+	// Check if the bullet has flown outside of the camera 
+	checkBulletOutOfBounds( bullet, bulletX, bulletY );   
+  }
+
+/*
+* Desc: Moves the bullet based on its speed and the direction its facing 
+* Input: 
+* 	- bullet: The specific bullet we want to move 
+*/ 
+function moveBullet( bullet )
+  {
+
+	// Math stuff that I don't really get, but it works. GEOMETERY!
+  bullet.position.x = bullet.position.x + BULLET_SPEED * Math.cos( bullet.rotation );
+  bullet.position.y = bullet.position.y + BULLET_SPEED * Math.sin( bullet.rotation );
+  }
+	
+/*
+* Desc: Checks if the bullet has left the confides we're okay with, and removes it 
+* Input: 
+* 	- bullet: the bullet we're checking up on
+* 	- bulletX: The x position of the bullet 
+* 	- bulletY: the y position of the bullet 
+*/
+function checkBulletOutOfBounds( bullet, bulletX, bulletY )
+	{
+		
+	// Checks if the bullet has left our rectangle 
+	if( bulletX > player.x + CENTER_X ||
       bulletX < player.x - CENTER_X ||
       bulletY > player.y + CENTER_Y ||
       bulletY < player.y - CENTER_Y )
     {
+			
+		// If so, remove it from the gameplayScreen 
     gameplayScreen.removeChild( bullet );
     }
-  }
+	}
 
-function moveBullet( bullet )
-  {
-
-  bullet.position.x = bullet.position.x + BULLET_SPEED * Math.cos( bullet.rotation );
-  bullet.position.y = bullet.position.y + BULLET_SPEED * Math.sin( bullet.rotation );
-  }
-
+/*
+* Desc: Calculates the rotation that our player will aim at 
+*/ 
 function calculate_PC_aim()
   {
 
+	// Create variables that will hold vector between the mouse and player character
   var xDirection; 
   var yDirection;
-	xDirection = mousePosition.x - player.relativeX; //player.x;
-	yDirection = mousePosition.y - player.relativeY; //player.y;
+	xDirection = mousePosition.x - player.relativeX; 
+	yDirection = mousePosition.y - player.relativeY; 
 	
+	// Determine the angle that our player will shoot at 
   var angle = Math.atan2( yDirection, xDirection );
+	
+	// Save the rotation of our aim to the player object. 
+	// This is the number we're using for the bullet math 
   player.aimRotation = angle - 0.025;
+	
+	// The sprite's rotation is slightly different and must be accounted for 
+	// This number is only for the sprite 
   PC_blaster.rotation = angle + 1.57;
   }
 
 /*******************************
 *       PLayer movement functions
 *******************************/
+
+/*
+* Desc: The event handler that will check if a WASD key is held 
+*/ 
 function keydown_PC_movement( key )
   {
 
-
+	// Check if the player has pushed the W Key
   if( key.keyCode == W_KEY )
     { player.moveUp = true; }
-  //
+	
+	// Check if the player has pushed the A Key
   if( key.keyCode == A_KEY )
     { player.moveLeft = true; }
-  //
+	
+  // Check if the player has pushed the S Key
   if( key.keyCode == S_KEY )
     { player.moveDown = true; }
-  //
+	
+  // Check if the player has pushed the D Key
   if( key.keyCode == D_KEY )
     { player.moveRight = true; }
   }
 
+/*
+* Desc: Check if the player has let go of a WASD key 
+*/ 
 function keyup_PC_movement( key )
   {
 
+	// Check if the player has left go of the W Key
   if( key.keyCode == W_KEY )
     { player.moveUp = false; }
-  //
+  
+	// Check if the player has left go of the A Key
   if( key.keyCode == A_KEY )
     { player.moveLeft = false; }
-  //
+  
+	// Check if the player has left go of the S Key
   if( key.keyCode == S_KEY )
     { player.moveDown = false; }
-  //
+  
+	// Check if the player has left go of the D Key
   if( key.keyCode == D_KEY )
     { player.moveRight = false; }
   }
 
+/*
+* Desc: Does the math to move the character 
+*/ 
 function playerMovementHandler()
   {
 
+	// For all of these conditions, they will move the player based on its speed 
+	// Checks if the player wants to move up
   if( player.moveUp == true )
     { player.y -= player.speed; }
 
+	// Checks if the player wants to move down 
   if( player.moveDown == true )
     { player.y += player.speed; }
-
+	
+	// Checks if the player wants to move right
   if( player.moveRight == true )
     { player.x += player.speed; }
 
+	// Checks if the player wants to move left 
   if( player.moveLeft == true )
     { player.x -= player.speed; }
 
+	// Move all of the sprites that make up the player character 
   var i;
   for( i = 0; i < PC_parts.length; i++ )
     {
@@ -289,6 +450,9 @@ function playerMovementHandler()
     }
   }
 
+/*
+* Desc: Add the sprites that make up the player character to our chosen container 
+*/ 
 function initializePlayer( screen )
 	{
 
@@ -430,20 +594,38 @@ function menuButtonClickHandler( e )
 function updateCamera()
   {
 	
+	// Determine the amount we want to pan the camera based on mouse position 
 	var panX = ( mousePosition.x - CENTER_X ); 
 	var panY = ( mousePosition.y - CENTER_Y );
-	if( panX > PAN_LIMITER ) { panX = PAN_LIMITER; }
-	if( panX < -PAN_LIMITER ) { panX = -PAN_LIMITER; } 
-	if( panY > PAN_LIMITER ) { panY = PAN_LIMITER; } 
-	if( panY < -PAN_LIMITER ) { panY = -PAN_LIMITER; } 
-  gameplayScreen.x = (-player.x + CENTER_X + -player.width/2) - ( panX/PAN_DIVISOR );
-  gameplayScreen.y = (-player.y + CENTER_Y + -player.height/2) - ( panY/PAN_DIVISOR );
 	
-	player.relativeX = CENTER_X + -player.width/2 - ( panX/PAN_DIVISOR ); 
-	player.relativeY = CENTER_Y + -player.height/2 - ( panY/PAN_DIVISOR ); 
+	// Check if the mouse has moved passed the area where we no longer want it to 
+	// 	 move the camera 
+	if( panX > pan_offset ) { panX = pan_offset; }
+	if( panX < -pan_offset ) { panX = -pan_offset; } 
+	if( panY > pan_offset ) { panY = pan_offset; } 
+	if( panY < -pan_offset ) { panY = -pan_offset; } 
+	
+	// Move the camera based on the player's position and mouse position 
+  gameplayScreen.x = (-player.x + CENTER_X + -player.width/2) - ( panX/camera_sensitivity );
+  gameplayScreen.y = (-player.y + CENTER_Y + -player.height/2) - ( panY/camera_sensitivity );
+	
+	// Changes the player's position in relation to the camera. 
+	/*
+	* NECESSARY FOR COMPUTING THE DIRECTION THE PLAYER IS AIMING
+	*/ 
+	player.relativeX = CENTER_X + -player.width/2 - ( panX/camera_sensitivity ); 
+	player.relativeY = CENTER_Y + -player.height/2 - ( panY/camera_sensitivity ); 
   }
 	
-	
+/*
+* Desc: Makes the variable, "camera_sensitivity"'s scale more intuitive. 
+* 	Let's the higher the number, up to 10, determine the sensitivity 
+*/ 
+function calculateCameraSensitivity()
+	{
+		
+	camera_sensitivity = Math.abs( camera_sensitivity - 11 ); 
+	}
 	
 	
 //	
