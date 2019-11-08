@@ -19,9 +19,9 @@ const PC_START_X = 50;
 const PC_START_Y = 50;
 
 // A boolean that determines if the camera will be zoomed in or not 
-const CAMERA_ZOOM = false;
+const CAMERA_ZOOM = true;
 // The amount that we want our camera to be zoomed in 
-const GAME_SCALE = 4;
+const GAME_SCALE = 2;
 
 // Keyboard values for the movement keys 
 const W_KEY = 87;
@@ -531,7 +531,7 @@ function tutorialButtonClickHandler( e )
 	stage.addChild( tutorialScreen );
 
   // Create the text we want to be on the tutorial screen
-  var tutorialText = new PIXI.Text( "Tutorial Text" );
+  var tutorialText = new PIXI.Text( "Move with the WASD keys\nUse the mouse to aim and click to fire" );
   tutorialText.position.x = 400;
 	tutorialText.position.y = 500;
 	tutorialText.anchor.x = 0.5;
@@ -599,15 +599,25 @@ function updateCamera()
 	var panY = ( mousePosition.y - CENTER_Y );
 	
 	// Check if the mouse has moved passed the area where we no longer want it to 
-	// 	 move the camera 
+	// 	 move the camera. If it has, set the amount it can move the camera to the 
+	// 	 maximum we want to set it to 
 	if( panX > pan_offset ) { panX = pan_offset; }
 	if( panX < -pan_offset ) { panX = -pan_offset; } 
 	if( panY > pan_offset ) { panY = pan_offset; } 
 	if( panY < -pan_offset ) { panY = -pan_offset; } 
 	
-	// Move the camera based on the player's position and mouse position 
-  gameplayScreen.x = (-player.x + CENTER_X + -player.width/2) - ( panX/camera_sensitivity );
-  gameplayScreen.y = (-player.y + CENTER_Y + -player.height/2) - ( panY/camera_sensitivity );
+	// Move the camera based on the player's position and mouse position. This changes if the camera is zoomed
+	if( CAMERA_ZOOM )
+		{
+		gameplayScreen.x = (-player.x * GAME_SCALE + CENTER_X + -player.width/2) - ( panX/camera_sensitivity );
+		gameplayScreen.y = (-player.y * GAME_SCALE + CENTER_Y + -player.height/2) - ( panY/camera_sensitivity );
+		}
+	else 
+		{
+		gameplayScreen.x = (-player.x + CENTER_X + -player.width/2) - ( panX/camera_sensitivity );
+		gameplayScreen.y = (-player.y + CENTER_Y + -player.height/2) - ( panY/camera_sensitivity );
+		}
+ 
 	
 	// Changes the player's position in relation to the camera. 
 	/*
@@ -618,7 +628,7 @@ function updateCamera()
   }
 	
 /*
-* Desc: Makes the variable, "camera_sensitivity"'s scale more intuitive. 
+* Desc: Makes the variable, "camera_sensitivity" scale more intuitive. 
 * 	Let's the higher the number, up to 10, determine the sensitivity 
 */ 
 function calculateCameraSensitivity()
