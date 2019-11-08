@@ -15,13 +15,13 @@ gameport.appendChild( renderer.view );
 *     Constants
 *******************************************************/
 // The starting x and y coordinates for the player 
-const PC_START_X = 50;
-const PC_START_Y = 50;
+const PC_START_X = 150;
+const PC_START_Y = 150;
 
 // A boolean that determines if the camera will be zoomed in or not 
 const CAMERA_ZOOM = true;
 // The amount that we want our camera to be zoomed in 
-const GAME_SCALE = 2;
+const GAME_SCALE = 1.5;
 
 // Keyboard values for the movement keys 
 const W_KEY = 87;
@@ -148,7 +148,34 @@ stage.addChild( titleScreen );
 /****************************************************
 *     Tilemap Initialization
 ****************************************************/
-
+PIXI.loader
+	.add( 'tileSet', 'tileset.png' )
+	.load( loadAssets ); 
+	
+var tileManager = 
+	{
+	
+	tileSize: 50, 
+	tileSet: [], 
+	tileSet_width: 10, 
+	tileSet_height: 2,
+	
+	testRoom_width: 10, 
+	testRoom_height: 10, 
+	testRoom_map: 
+		[
+		4, 5, 5, 5, 5, 5, 5, 5, 5, 6, 
+		11, 12, 12, 12, 12, 12, 12, 12, 12, 13, 
+		7, 3, 3, 3, 3, 3, 3, 3, 3, 10, 
+		7, 3, 2, 2, 2, 2, 2, 2, 3, 10, 
+		7, 3, 2, 1, 1, 1, 1, 2, 3, 10, 
+		7, 3, 2, 1, 1, 1, 1, 2, 3, 10, 
+		7, 3, 2, 2, 2, 2, 2, 2, 3, 10, 
+		7, 3, 3, 3, 3, 3, 3, 3, 3, 10, 
+		7, 3, 3, 3, 3, 3, 3, 3, 3, 10, 
+		9, 5, 5, 5, 5, 5, 5, 5, 5, 8
+		]
+	}
 
 /***********************************************************
 *     Character Initialization
@@ -463,7 +490,76 @@ function initializePlayer( screen )
 		screen.addChild( PC_parts[ i ] );
 		}
 	}
+	
+/**********************************
+*			Tile map functions 
+**********************************/
+function loadAssets()
+	{
+		
+	// Creating a short cut to the resources we've loaded 
+	let resources = PIXI.loader.resources;
+	
+	const tileSetWidth = tileManager.tileSet_width;
+	const tileSetHeight = tileManager.tileSet_height;
+	const tileSize = tileManager.tileSize; 
+	
+	// Manually cut up our sprite sheet to create each of our tiles 
+  for( let i = 0; i < tileSetWidth * tileSetHeight; i++ )
+    {
+			
+		// Save the x "index" for the x position of our tile on the sprite sheet 
+    let x = i % tileSetWidth;
+		
+		// Save the y "idnex" for the y position of our tiles on the sprite sheet 
+    let y = Math.floor( i / tileSetWidth );
 
+		// Cut out the piece of the sprite sheet that we want and save it to our tileset array 
+    tileManager.tileSet.push
+			( 
+			new PIXI.Texture
+				(
+		
+				// Retreive the entire sprite sheet 
+				resources.tileSet.texture,
+				
+				// Cut out the specific tile we want during this iteration of the loop 
+				// Add 1 to account for the margin on the outside border of the sprite sheet 
+				new PIXI.Rectangle( x * tileSize, y * tileSize, tileSize, tileSize )
+				)
+			); 
+    }
+	}
+	
+function drawTileMap( map, tileMapHeight, tileMapWidth, container )
+	{
+	
+	// Save variables, so access to them is faster
+	var tileSet = tileManager.tileSet; 
+	var tileSize = tileManager.tileSize; 
+	var tileMap = map; 
+		
+	for( var y = 0; y < tileMapHeight; y++ )
+		{
+			
+		for( var x = 0; x < tileMapWidth; x++ )
+			{
+
+			var tile = tileMap[ y * tileMapWidth + x ]; 
+			
+			var sprite = new PIXI.Sprite( tileSet[ tile - 1 ] ); 
+			
+			// Set the position and anchor of the tile 
+			sprite.anchor.x = 0.0; 
+			sprite.anchor.y = 0.0; 
+			sprite.x = x * ( tileSize ); 
+			sprite.y = y * ( tileSize ); 
+			
+			// Add the drawn tile to our background container 
+			container.addChild( sprite ); 
+			}		
+		}
+	}
 
 /******************************
 *     Menu functions
@@ -504,6 +600,15 @@ function startButtonClickHandler( e )
 	stage.removeChild( titleScreen );
 	// Add the containers necessary for gameplay to the stage
 	stage.addChild( gameplayScreen );
+	
+	// Draw the tilemap for our test room 
+	drawTileMap
+		( 
+		tileManager.testRoom_map, 
+		tileManager.testRoom_height, 
+		tileManager.testRoom_width, 
+		gameplayScreen
+		); 
 
 	// Add the player to the gameplay screen
 	initializePlayer( gameplayScreen );
@@ -520,6 +625,8 @@ function startButtonClickHandler( e )
     }
 
   gameRunning = true;
+	
+	
 	}
 
 function tutorialButtonClickHandler( e )
