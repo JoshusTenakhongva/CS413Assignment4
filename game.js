@@ -21,7 +21,7 @@ const PC_START_Y = 150;
 // A boolean that determines if the camera will be zoomed in or not 
 const CAMERA_ZOOM = true;
 // The amount that we want our camera to be zoomed in 
-const GAME_SCALE = 1.5;
+const GAME_SCALE = 2;
 
 // Keyboard values for the movement keys 
 const W_KEY = 87;
@@ -494,6 +494,11 @@ function initializePlayer( screen )
 /**********************************
 *			Tile map functions 
 **********************************/
+/*
+* Desc: function that will save our assets loaded through PIXI to the variablees 
+* 			we are going to use. It will load 
+* 				- The tile set 
+*/ 
 function loadAssets()
 	{
 		
@@ -531,6 +536,14 @@ function loadAssets()
     }
 	}
 	
+/*
+* Desc: Draws a specific tilemap onto a specific container 
+* Input: 
+* 	- map: The tilemap array that we're going to print 
+* 	- tileMapHeight: The height of the tilemap measured in tiles 
+* 	- tilemapWidth: The width of the tilemap measured in tiles 
+* 	- container: The PIXI container that we want to print the tiles to 
+*/ 
 function drawTileMap( map, tileMapHeight, tileMapWidth, container )
 	{
 	
@@ -539,14 +552,18 @@ function drawTileMap( map, tileMapHeight, tileMapWidth, container )
 	var tileSize = tileManager.tileSize; 
 	var tileMap = map; 
 		
+	// Loop through the Y axis of the tilemap 
 	for( var y = 0; y < tileMapHeight; y++ )
 		{
 			
+		// Loop through the X axis of the tilemap 
 		for( var x = 0; x < tileMapWidth; x++ )
 			{
-
+	
+			// Grab the tile ID from the tileMap that we're going to print 
 			var tile = tileMap[ y * tileMapWidth + x ]; 
 			
+			// Obtain the tile that we want to print using its ID 
 			var sprite = new PIXI.Sprite( tileSet[ tile - 1 ] ); 
 			
 			// Set the position and anchor of the tile 
