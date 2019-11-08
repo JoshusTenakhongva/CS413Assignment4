@@ -170,14 +170,9 @@ PIXI.loader
 	.add( 'tileSet', 'tileset.png' )
 	.load( loadAssets ); 
 	
-var tileManager = 
+var tileMapManager = 
 	{
-	
-	tileSize: 50, 
-	tileSet: [], 
-	tileSet_width: 10, 
-	tileSet_height: 2,
-	
+
 	testRoom_width: 10, 
 	testRoom_height: 10, 
 	testRoom_map: 
@@ -193,6 +188,15 @@ var tileManager =
 		7, 3, 3, 3, 3, 3, 3, 3, 3, 10, 
 		9, 5, 5, 5, 5, 5, 5, 5, 5, 8
 		]
+	}
+	
+var tileSetManager = 
+	{
+		
+	tileSize: 50, 
+	tileSet: [], 
+	tileSet_width: 10, 
+	tileSet_height: 2
 	}
 
 /***********************************************************
@@ -530,9 +534,9 @@ function loadAssets()
 	// Creating a short cut to the resources we've loaded 
 	let resources = PIXI.loader.resources;
 	
-	const tileSetWidth = tileManager.tileSet_width;
-	const tileSetHeight = tileManager.tileSet_height;
-	const tileSize = tileManager.tileSize; 
+	const tileSetWidth = tileSetManager.tileSet_width;
+	const tileSetHeight = tileSetManager.tileSet_height;
+	const tileSize = tileSetManager.tileSize; 
 	
 	// Manually cut up our sprite sheet to create each of our tiles 
   for( let i = 0; i < tileSetWidth * tileSetHeight; i++ )
@@ -545,7 +549,7 @@ function loadAssets()
     let y = Math.floor( i / tileSetWidth );
 
 		// Cut out the piece of the sprite sheet that we want and save it to our tileset array 
-    tileManager.tileSet.push
+    tileSetManager.tileSet.push
 			( 
 			new PIXI.Texture
 				(
@@ -573,8 +577,8 @@ function drawTileMap( map, tileMapHeight, tileMapWidth, container )
 	{
 	
 	// Save variables, so access to them is faster
-	var tileSet = tileManager.tileSet; 
-	var tileSize = tileManager.tileSize; 
+	var tileSet = tileSetManager.tileSet; 
+	var tileSize = tileSetManager.tileSize; 
 	var tileMap = map; 
 		
 	// Loop through the Y axis of the tilemap 
@@ -646,9 +650,9 @@ function startButtonClickHandler( e )
 	// Draw the tilemap for our test room 
 	drawTileMap
 		( 
-		tileManager.testRoom_map, 
-		tileManager.testRoom_height, 
-		tileManager.testRoom_width, 
+		tileMapManager.testRoom_map, 
+		tileMapManager.testRoom_height, 
+		tileMapManager.testRoom_width, 
 		gameplayScreen
 		); 
 
