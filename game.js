@@ -1,10 +1,9 @@
 /*********************************************
-*			Gameport settings 
+*			Gameport settings
 **********************************************/
+// Constants that determine the screen dimensions 
 const GAME_WIDTH = 800;
-const CENTER_X = GAME_WIDTH / 2; 
 const GAME_HEIGHT = 600;
-const CENTER_Y = GAME_HEIGHT / 2; 
 
 var gameport = document.getElementById( "gameport" );
 var renderer = PIXI.autoDetectRenderer({ GAME_WIDTH, GAME_HEIGHT, backgroundColor: 0x6ac48a });
@@ -14,6 +13,19 @@ gameport.appendChild( renderer.view );
 /*******************************************************
 *     Constants
 *******************************************************/
+
+// Constants that hold the center of the X and Y axes
+const CENTER_X = GAME_WIDTH / 2; 
+const CENTER_Y = GAME_HEIGHT / 2; 
+
+// Constants that hold the boundaries for thirds of the screen 
+// X axis 
+const LEFT_THIRD_DIVIDER = Math.floor( GAME_WIDTH * 0.333 ); 
+const RIGHT_THIRD_DIVIDER = Math.floor( GAME_WIDTH * 0.667 ); 
+// Y axis
+const UPPER_THIRD_DIVIDER = Math.floor( GAME_HEIGHT * 0.333 ); 
+const LOWER_THIRD_DIVIDER = Math.floor( GAME_HEIGHT * 0.667 ); 
+
 // The starting x and y coordinates for the player 
 const PC_START_X = 150;
 const PC_START_Y = 150;
@@ -37,6 +49,10 @@ const BULLET_SPEED = 13;
 /*****************************************************
 *     Global Variables
 ******************************************************/
+
+// Create an instance of the bump collision engine 
+let bump_engine = new Bump(PIXI); 
+
 // Variable that we can use to get the x and y position of the mouse 
 var mousePosition = getMousePosition();
 
@@ -51,7 +67,9 @@ var gameRunning = false;
 var camera_sensitivity = 7;  
 
 // The offset that we will allow for the mouse to pan the camera 
-// If the player wants to turn off mouse camera movement, set this to 0
+/*
+/ If the player wants to turn off mouse camera movement, set this to 0
+*/ 
 var pan_offset = 250; 
 
 /*******************************************************
@@ -285,7 +303,7 @@ document.addEventListener( 'keyup', keyup_PC_movement );
 *************************************************************************/
 
 /*************************
-*     Shooting functions
+*     Shooting/Bullet functions
 ***************************/
 /*
 * Desc: Used to find the position of the mouse and updates to mousePosition variable
@@ -331,6 +349,12 @@ function handleBullet( bullet )
 
 	// Move the bullet toward its destination 
   moveBullet( bullet );
+	
+	// Check if the bullet has collided with something 
+	
+		// Check if the bullet has collided with the environment 
+		
+		// Check if the bullet has collided with an enemy 
 
 	// Check if the bullet has flown outside of the camera 
 	checkBulletOutOfBounds( bullet, bulletX, bulletY );   
@@ -395,8 +419,9 @@ function calculate_PC_aim()
   PC_blaster.rotation = angle + 1.57;
   }
 
+
 /*******************************
-*       PLayer movement functions
+*       Player movement functions
 *******************************/
 
 /*
