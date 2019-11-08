@@ -196,7 +196,15 @@ var tileSetManager =
 	tileSize: 50, 
 	tileSet: [], 
 	tileSet_width: 10, 
-	tileSet_height: 2
+	tileSet_height: 2,
+	
+	tilesWithCollisionList: 
+		[ 
+		4, 5, 6, 7, 8, 9, 10, 
+		11, 12, 13
+		]
+		
+	
 	}
 
 /***********************************************************
