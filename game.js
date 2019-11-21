@@ -168,15 +168,30 @@ stage.addChild( titleScreen );
 *     Tilemap Initialization
 ****************************************************/
 
+/*
+* A class that is used for doing calculations with the tiles. It's main 
+	purpose is to hold onto the collision box for each tile on the level. 
+	If we want to add other properties to tiles like a spike tile that does 
+	damage or a lava tile that insta-kills, we would put those flags and 
+	damage numbers into this object. 
+*/ 
 class Tile
 	{
 
+	// The sprite for the tile 
 	sprite;
+	
+	// The coordinates for the tile 
 	sprite_x;
 	sprite_y;
+	
+	// Whether or not this sprite has collisions 
 	collisions_on;
+	
+	// Variable that holds the rectangle object that is used for collisions 
 	collision_box;
 
+	// Constructor that takes in the information from the sprite image 
 	constructor( sprite )
 		{
 
@@ -185,6 +200,7 @@ class Tile
 		this.sprite_y = sprite.position.x;
 		}
 
+	// Creates the collision box based on the tileProperties in the tileSetManager 
 	setCollisionBox( originX, originY, height, width )
 		{
 
@@ -192,11 +208,26 @@ class Tile
 		}
 	}
 
+/*
+* Desc: Holds the information about every room that we want to print. 
+* Properties: 
+	- width: the width of each individual room measured in tiles 
+	- height: The height of each individual room meaured in tiles 
+	- layout: A guide for the tileMap printing function where to print what tile 
+	- map: An array that holds the tile objects
+*/ 
 var tileMapManager =
 	{
 
 	testRoom_width: 10,
 	testRoom_height: 10,
+	
+	/*
+	An array that holds the order that the tiles will be printed out in 
+	and what tiles will be printed out in that order. 
+	The printing will be affected by the height and the width of the room. 
+	Each number represents the ID of the tile. 
+	*/
 	testRoom_layout:
 		[
 		4, 5, 5, 5, 5, 5, 5, 5, 5, 6,
@@ -210,9 +241,26 @@ var tileMapManager =
 		7, 3, 3, 3, 3, 3, 3, 3, 3, 10,
 		9, 5, 5, 5, 5, 5, 5, 5, 5, 8
 		],
+		
+	/*
+	An array that holds the tile objects, so when you want to reference a 
+	tile, you'll use this map to find its properties like collision boxes.
+	It should basically be the layout but with tile objects rather than 
+	tile IDs. 
+	*/
 	testRoom_map: []
 	}
 
+/*
+* Desc: Manages the tileset itself. 
+* Properties: 
+	- tileSize: The height and width of each tile in pixels
+	- tileSet: An array that holds the sprites for each tile 
+	- numberOfTiles: number of tiles in the png file 
+	- tileSetWidth: The width of the tileSet png measured in tiles 
+	- tileSetHeight: The height of the tileSet png measured in tiles 
+	- tileProperties: Holds the initial values for the tiles
+*/ 
 var tileSetManager =
 	{
 
@@ -222,7 +270,17 @@ var tileSetManager =
 	tileSet_width: 10,
 	tileSet_height: 2,
 
-	// The amount needs to match tileSet_width * tileSet_height
+	/*
+	* The properties for each tile in the tileSet array 
+	* The order must match the tileSet array. 
+	* The first index of "tileProperties" holds the properties for the 
+		first tile in the tileSet. Since the TileSet only holds the sprites, 
+		this is what is used to create the tile objects that will be held in
+		the "map" properties of the tileMapManager. 
+	* The collisions_on is so if we don't plan on the tile being anyting other
+		than a sprite, the tile object creator won't try and access its other 
+		properties. 
+	*/ 
 	tileProperties:
 		[
 		// Tile 1
@@ -333,6 +391,7 @@ var tileSetManager =
 		]
 	}
 
+// Load our tileSet into our program 
 PIXI.loader
 	.add( 'tileSet', 'tileset.png' )
 	.load( loadAssets );
@@ -372,10 +431,23 @@ var player =
 	relativeX: 0,
 	relativeY: 0,
 
+	/*
+	* These are the properties for the collision box for the player 
+	*/ 
+	// The width of our collision box. It's just the width of the player 
 	collisionBoxWidth: this.width,
+	
+	// The height of our collision box. Since this box is going to be at the player's 
+	// feet, its height is 10 and not the sprite height 
 	collisionBoxHeight: 10,
+	
+	// This is the midpoint of the collision box on the x axis 
 	collisionX: ( this.x + this.width/2 ),
+	
+	// This is the midpoint of the collision box on the y axis 
 	collisionY: ( this.y + this.height/2 - - this.collisionBoxHeight ),
+	
+	// This is the actual rectangle object that is going to be used for collisions 
 	collisionBox: new PIXI.Rectangle( this.collisionX,
 																		this.collisionY,
 																		this.collisionBoxWidth,
@@ -426,10 +498,13 @@ function animate(timestamp)
 		updateCamera();
     playerMovementHandler();
     calculate_PC_aim();
+		
+		// Check if the player has collided with any piece of the environment
     if( bump_engine.hit( player, tileMapManager.testRoom_map[ 0 ].sprite ) )
       {
 
       console.log( "collision!" );
+			
       }
 
 		// Move the bullets and check if they're collided with anything or has
@@ -484,11 +559,20 @@ function player_shoot()
 function spawnBullet( image )
   {
 
+	// Create bullet sprite 
   bullet = new PIXI.Sprite( PIXI.Texture.from( image ));
+	
+	// Add it to our gameplay screen 
   gameplayScreen.addChild( bullet );
+	
+	// Initialize the initial position of the bullet 
   bullet.position.x = player.x;
   bullet.position.y = player.y;
+	
+	// Set the rotation of the bullet to be the same as the player's rotation 
   bullet.rotation = player.aimRotation;
+	
+	// Add the bullet to our array of live player character bullets 
   PC_live_bullets.push( bullet );
   }
 
@@ -636,7 +720,10 @@ function playerMovementHandler()
 	// For all of these conditions, they will move the player based on its speed
 	// Checks if the player wants to move up
   if( player.moveUp == true )
-    { player.y -= player.speed; }
+    { 
+		
+		player.y -= player.speed; 
+		}
 
 	// Checks if the player wants to move down
   if( player.moveDown == true )
@@ -776,17 +863,6 @@ function drawTileMap( map, tileMapHeight, tileMapWidth, container )
 
 			tileMapManager.testRoom_map[ y * tileMapWidth + x ] = tile;
 
-        /*
-      {
-        collisions_on: true,
-        originX: 0,
-        originY: 40,
-        height: 10,
-        width: 50
-      },
-      setCollisionBox( originX, originY, height, width )
-      */
-
 			// Set the position and anchor of the tile
 			sprite.anchor.x = 0.0;
 			sprite.anchor.y = 0.0;
@@ -811,9 +887,20 @@ function findNearbyCollidableObjects( x, y )
 	//
 	}
 
-function checkCollision( obj1, obj2 )
+function checkEnvironmentalCollision( obj1, obj2 )
 	{
 
+	
+	}
+	
+function findAdjacentTile( object )
+	{
+		
+	// Find the tile the player is standing on 
+	
+	// Find the adjacent tiles 
+	
+	// Return array with adjacent tiles 
 	}
 
 /******************************
@@ -941,6 +1028,7 @@ function menuButtonClickHandler( e )
 	stage.removeChild( creditsScreen );
 	stage.removeChild( tutorialScreen );
 
+	// Reset the scale if it changed 
 	menuButton.scale.x = 1;
 	menuButton.scale.y = 1;
 

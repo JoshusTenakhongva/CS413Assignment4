@@ -1,0 +1,13 @@
+High Priority
+- Collisions with walls
+- Actual Level made
+- Enemies designed
+	* Enemies made
+	* Enemies sprites
+- Ability to hit things
+
+Medium Priority
+- Sound
+
+Low Priority
+- Music
