@@ -230,16 +230,16 @@ var tileMapManager =
 	*/
 	testRoom_layout:
 		[
-		4, 5, 5, 5, 5, 5, 5, 5, 5, 6,
+		 4,  5,  5,  5,  5,  5,  5,  5,  5,  6,
 		11, 12, 12, 12, 12, 12, 12, 12, 12, 13,
-		7, 3, 3, 3, 3, 3, 3, 3, 3, 10,
-		7, 3, 2, 2, 2, 2, 2, 2, 3, 10,
-		7, 3, 2, 1, 1, 1, 1, 2, 3, 10,
-		7, 3, 2, 1, 1, 1, 1, 2, 3, 10,
-		7, 3, 2, 2, 2, 2, 2, 2, 3, 10,
-		7, 3, 3, 3, 3, 3, 3, 3, 3, 10,
-		7, 3, 3, 3, 3, 3, 3, 3, 3, 10,
-		9, 5, 5, 5, 5, 5, 5, 5, 5, 8
+		 7,  3,  3,  3,  3,  3,  3,  3,  3, 10,
+		 7,  3,  2,  2,  2,  2,  2,  2,  3, 10,
+		 7,  3,  2,  1,  1,  1,  1,  2,  3, 10,
+		 7,  3,  2,  1,  1,  1,  1,  2,  3, 10,
+		 7,  3,  2,  2,  2,  2,  2,  2,  3, 10,
+		 7,  3,  3,  3,  3,  3,  3,  3,  3, 10,
+		 7,  3,  3,  3,  3,  3,  3,  3,  3, 10,
+		 9,  5,  5,  5,  5,  5,  5,  5,  5,  8
 		],
 		
 	/*
@@ -410,7 +410,9 @@ var player =
 	// Keeps track of the actual position of the player
   x: PC_START_X,
   y: PC_START_Y,
-
+	
+	PC_body: new PIXI.Sprite( PIXI.Texture.from( "playerCharacter.png" )),
+	PC_blaster: new PIXI.Sprite( PIXI.Texture.from( "blaster.png" )),
 	// The speed the player will move at
   speed: 1.5,
 
@@ -448,29 +450,31 @@ var player =
 	collisionY: ( this.y + this.height/2 - - this.collisionBoxHeight ),
 	
 	// This is the actual rectangle object that is going to be used for collisions 
-	collisionBox: new PIXI.Rectangle( this.collisionX,
-																		this.collisionY,
-																		this.collisionBoxWidth,
-																		this.collisionBoxHeight )
+	collisionBox: new PIXI.Rectangle( this.collisionX, 
+									  this.collisionY,
+									  this.collisionBoxWidth,
+									  this.collisionBoxHeight )
   };
 
 // PIXI.Texture.from
-// The sprite that represents the player character's body
-var PC_body = new PIXI.Sprite( PIXI.Texture.from( "playerCharacter.png" ));
-PC_body.anchor.x = 0.5;
-PC_body.anchor.y = 0.5;
-PC_body.position.x = player.x;
-PC_body.position.y = player.y;
 
-// The sprite that represents the gun of the player character
-var PC_blaster = new PIXI.Sprite( PIXI.Texture.from( "blaster.png" ));
-PC_blaster.anchor.x = 0.5;
-PC_blaster.anchor.y = 1.2;
-PC_blaster.position.x = player.x;
-PC_blaster.position.y = player.y;
+	// The sprite that represents the player character's body
+	player.PC_body.anchor.x = 0.5;
+	player.PC_body.anchor.y = 0.5;
+	player.PC_body.position.x = player.x;
+	player.PC_body.position.y = player.y;
+
+	// The sprite that represents the gun of the player character
+
+	player.PC_blaster.anchor.x = 0.5;
+	player.PC_blaster.anchor.y = 1.2;
+	player.PC_blaster.position.x = player.x;
+	player.PC_blaster.position.y = player.y;
+
+	
 
 // An array that holds all of the player sprites, so they can all be updated easily
-var PC_parts = [ PC_body, PC_blaster ];
+var PC_parts = [ player.PC_body, player.PC_blaster ];
 
 // Variable that keeps track of how many bullets are left
 var bulletNum = BULLET_CAP;
@@ -487,7 +491,7 @@ function animate(timestamp)
 
 	// The core gameloop
   if( gameRunning )
-    {
+  {
 		/*
 		* The order of these 3 functions is important
 		*
@@ -499,13 +503,7 @@ function animate(timestamp)
     playerMovementHandler();
     calculate_PC_aim();
 		
-		// Check if the player has collided with any piece of the environment
-    if( bump_engine.hit( player, tileMapManager.testRoom_map[ 0 ].sprite ) )
-      {
 
-      console.log( "collision!" );
-			
-      }
 
 		// Move the bullets and check if they're collided with anything or has
 		// gone off screen
@@ -514,7 +512,7 @@ function animate(timestamp)
 
       handleBullet( PC_live_bullets[ i ] );
       }
-    }
+  }
   renderer.render(stage);
  }
 
@@ -657,7 +655,7 @@ function calculate_PC_aim()
 
 	// The sprite's rotation is slightly different and must be accounted for
 	// This number is only for the sprite
-  PC_blaster.rotation = angle + 1.57;
+  player.PC_blaster.rotation = angle + 1.57;
   }
 
 
@@ -716,26 +714,51 @@ function keyup_PC_movement( key )
 */
 function playerMovementHandler()
   {
-
+	
+			
+	//Check if player has hit a wall
+	// Check if the player has collided with any piece of the environment
+	
+	var mapIter;
+	for(mapIter = 0; mapIter < tileMapManager.testRoom_map.length; mapIter++)
+	{
+		if( tileMapManager.testRoom_map[mapIter].collisions_on == true)
+		{
+			bump_engine.hit( player.PC_body, tileMapManager.testRoom_map[mapIter].sprite, true, false, true );
+			console.log( "collision!" );
+				
+		}
+		console.log( tileMapManager.testRoom_map[mapIter].collisions_on );
+	}
+	
 	// For all of these conditions, they will move the player based on its speed
 	// Checks if the player wants to move up
   if( player.moveUp == true )
-    { 
-		
-		player.y -= player.speed; 
-		}
+    { 	
+		player.PC_body.y -= player.speed; 
+		player.y = player.PC_body.y; 		
+	}
 
 	// Checks if the player wants to move down
   if( player.moveDown == true )
-    { player.y += player.speed; }
+    { 
+		player.PC_body.y += player.speed;
+		player.y = player.PC_body.y;
+	}
 
 	// Checks if the player wants to move right
   if( player.moveRight == true )
-    { player.x += player.speed; }
+    { 
+		player.PC_body.x += player.speed; 
+		player.x = player.PC_body.x; 
+	}
 
 	// Checks if the player wants to move left
   if( player.moveLeft == true )
-    { player.x -= player.speed; }
+    { 
+		player.PC_body.x -= player.speed; 
+		player.x = player.PC_body.x; 
+	}
 
 	player.collisionBox.y = player.y;
 	player.collisionBox.x = player.x;
@@ -1057,13 +1080,13 @@ function updateCamera()
 	// Move the camera based on the player's position and mouse position. This changes if the camera is zoomed
 	if( CAMERA_ZOOM )
 		{
-		gameplayScreen.x = (-player.x * GAME_SCALE + CENTER_X + -player.width/2) - ( panX/camera_sensitivity );
-		gameplayScreen.y = (-player.y * GAME_SCALE + CENTER_Y + -player.height/2) - ( panY/camera_sensitivity );
+		gameplayScreen.x = (-player.PC_body.x * GAME_SCALE + CENTER_X + -player.width/2) - ( panX/camera_sensitivity );
+		gameplayScreen.y = (-player.PC_body.y * GAME_SCALE + CENTER_Y + -player.height/2) - ( panY/camera_sensitivity );
 		}
 	else
 		{
-		gameplayScreen.x = (-player.x + CENTER_X + -player.width/2) - ( panX/camera_sensitivity );
-		gameplayScreen.y = (-player.y + CENTER_Y + -player.height/2) - ( panY/camera_sensitivity );
+		gameplayScreen.x = (-player.PC_body.x + CENTER_X + -player.width/2) - ( panX/camera_sensitivity );
+		gameplayScreen.y = (-player.PC_body.y + CENTER_Y + -player.height/2) - ( panY/camera_sensitivity );
 		}
 
 
