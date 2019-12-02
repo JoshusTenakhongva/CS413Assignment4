@@ -305,6 +305,11 @@ var tileSetManager =
 			height: 10,
 			width: 50
 		},
+		
+		/*
+		* We can do these tiles later, but for now, we can test out collsion with  
+			tile 4 and 5. 
+		*/ 
 		// Tile 6
 		{ collisions_on: false },
 		{ collisions_on: false },
@@ -400,31 +405,6 @@ PIXI.loader
 *     Character Initialization
 ************************************************************/
 
-var enemies = [enemy_chaser, enemy_shooter];
-var enemy_chaser = new PIXI.Sprite( PIXI.Texture.from( "playerCharacter.png" ));
-enemy_chaser.anchor.x = 0.5;
-enemy_chaser.anchor.y = 0.5;
-enemy_chaser.position.x = Math.floor(Math.random() * 400) + 40;
-enemy_chaser.position.y = Math.floor(Math.random() * 400) + 50;
-
-var enemy_shooter = new PIXI.Sprite(PIXI.Texture.from('playerCharacter.png'));
-enemy_shooter.anchor.x = 0.5;
-enemy_shooter.anchor.y = 0.5;
-enemy_shooter.position.x = Math.floor(Math.random() * 400) + 40;
-enemy_shooter.position.y = Math.floor(Math.random() * 400) + 50;
-/*
-var enemy = new PIXI.sprite(//insert enemy sprite here)';
-enemy.anchor.x = 0.5;
-enemy.anchor.y = 0.5;
-
-var enemy = new PIXI.sprite(//insert enemy sprite here)';
-enemy.anchor.x = 0.5;
-enemy.anchor.y = 0.5;
-
-var enemy = new PIXI.sprite(//insert enemy sprite here)';
-enemy.anchor.x = 0.5;
-enemy.anchor.y = 0.5;
-*/
 
 /*
 * An object that represents the information about the player
@@ -523,8 +503,6 @@ function animate(timestamp)
 		updateCamera();
     playerMovementHandler();
     calculate_PC_aim();
-	moveEnemy();
-	
 		
 		// Check if the player has collided with any piece of the environment
     if( bump_engine.hit( player, tileMapManager.testRoom_map[ 0 ].sprite ) )
@@ -737,64 +715,6 @@ function keyup_PC_movement( key )
   if( key.keyCode == D_KEY )
     { player.moveRight = false; }
   }
-var tweenSpeed = 1000;
-var enemyBullet = new PIXI.Sprite(PIXI.Texture.from('bullet.png'));
-var bulletMoving = false;
-function enemyShoot()
-{
-  bulletReset();	
-  enemyBullet.position.x = enemy_shooter.position.x;
-  enemyBullet.position.y = enemy_shooter.position.y;
-  var bulletX = enemyBullet.position.x;
-  var bulletY = enemyBullet.position.y;
-  bulletMoving = true;
-  var target_x = PC_body.position.x;
-  var target_y = PC_body.position.y;
-  gameplayScreen.addChild(enemyBullet);
-  createjs.Tween.get(enemyBullet.position).to({x: target_x, y: target_y}, tweenSpeed);
-  
-}
-
-function bulletReset()
-{
-	bullet.position.x = enemy_shooter.position.x;
-	bullet.position.y = enemy_shooter.position.x;
-}
-var time;
-
-function pewpewStuff()
-{
-	if( gameRunning )
-	{
-	enemyShoot();
-		
-	}
-	console.log('An enemy has shot!');
-}
-function timer(){
-    var time = setInterval(pewpewStuff,1000); 	
-}
-var enemySpeed = 0.5;
-function moveEnemy() {
-
-  // move the enemy right
-  if(enemy_chaser.position.x < PC_body.position.x) {
-    enemy_chaser.position.x = enemy_chaser.position.x + 1 * enemySpeed;
-  }
-  // move the enemy left
-  else if(enemy_chaser.position.x > PC_body.position.x) {
-    enemy_chaser.position.x = enemy_chaser.position.x - 1 * enemySpeed;
-  }
-  // move the enemy down
-  if(enemy_chaser.position.y < PC_body.position.y) {
-    enemy_chaser.position.y = enemy_chaser.position.y + 1 * enemySpeed;
-  }
-  // move the enemy up
-  else if(enemy_chaser.position.y > PC_body.position.y) {
-    enemy_chaser.position.y = enemy_chaser.position.y - 1 * enemySpeed;
-  }
-  
-}
 
 /*
 * Desc: Does the math to move the character
@@ -846,8 +766,6 @@ function initializePlayer( screen )
 
 		screen.addChild( PC_parts[ i ] );
 		}
-		screen.addChild(enemy_chaser);
-		screen.addChild(enemy_shooter);
 	}
 
 /**********************************
@@ -1171,4 +1089,6 @@ function calculateCameraSensitivity()
 
 	camera_sensitivity = Math.abs( camera_sensitivity - 11 );
 	}
-timer();
+
+
+//
