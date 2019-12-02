@@ -219,8 +219,8 @@ class Tile
 var tileMapManager =
 	{
 
-	testRoom_width: 15,
-	testRoom_height: 15,
+	testRoom_width: 10,
+	testRoom_height: 10,
 	
 	/*
 	An array that holds the order that the tiles will be printed out in 
@@ -230,21 +230,16 @@ var tileMapManager =
 	*/
 	testRoom_layout:
 		[
-		4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6,
-		11, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 13,
-		7, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 10,
-		7, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 10,
-		7, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 10,
-		7, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 10,
-		7, 3, 3, 3, 2, 1, 1, 1, 1, 1, 2, 3, 3, 3, 10,
-		7, 3, 3, 3, 2, 1, 1, 1, 1, 1, 2, 3, 3, 3, 10,
-		7, 3, 3, 3, 2, 1, 1, 1, 1, 1, 2, 3, 3, 3, 10,
-		7, 3, 3, 3, 2, 1, 1, 1, 1, 1, 2, 3, 3, 3, 10,
-		7, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 10,
-		7, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 10,
-		7, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 10,
-		7, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 10,
-		9, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 8
+		4, 5, 5, 5, 5, 5, 5, 5, 5, 6,
+		11, 12, 12, 12, 12, 12, 12, 12, 12, 13,
+		7, 3, 3, 3, 3, 3, 3, 3, 3, 10,
+		7, 3, 2, 2, 2, 2, 2, 2, 3, 10,
+		7, 3, 2, 1, 1, 1, 1, 2, 3, 10,
+		7, 3, 2, 1, 1, 1, 1, 2, 3, 10,
+		7, 3, 2, 2, 2, 2, 2, 2, 3, 10,
+		7, 3, 3, 3, 3, 3, 3, 3, 3, 10,
+		7, 3, 3, 3, 3, 3, 3, 3, 3, 10,
+		9, 5, 5, 5, 5, 5, 5, 5, 5, 8
 		],
 		
 	/*
@@ -405,33 +400,19 @@ PIXI.loader
 *     Character Initialization
 ************************************************************/
 
-/**************************
-*			Enemy Initialization 
-**************************/ 
+var enemies = [enemy_chaser, enemy_shooter];
+var enemy_chaser = new PIXI.Sprite( PIXI.Texture.from( "playerCharacter.png" ));
+enemy_chaser.anchor.x = 0.5;
+enemy_chaser.anchor.y = 0.5;
+enemy_chaser.position.x = Math.floor(Math.random() * 400) + 40;
+enemy_chaser.position.y = Math.floor(Math.random() * 400) + 50;
 
-// Class that holds the information about the chaser 
-class Enemy_chaser 
-	{
-	
-	name = "chaser";
-	hitPoints = 2; 
-	sprite; 
-	
-	constructor( xPosition, yPosition )
-		{
-		
-		this.sprite = new PIXI.Sprite( PIXI.Texture.from( "playerCharacter.png" ));
-		this.sprite.anchor.x = 0.5; 
-		this.sprite.anchor.y = 0.5; 
-		this.sprite.position.x = xPosition; 
-		this.sprite.position.y = yPosition; 
-		}	
-	}
-
-/*var enemy_shooter = new PIXI.sprite(//insert enemy sprite here)';
-enemy.anchor.x = 0.5;
-enemy.anchor.y = 0.5;
-
+var enemy_shooter = new PIXI.Sprite(PIXI.Texture.from('playerCharacter.png'));
+enemy_shooter.anchor.x = 0.5;
+enemy_shooter.anchor.y = 0.5;
+enemy_shooter.position.x = Math.floor(Math.random() * 400) + 40;
+enemy_shooter.position.y = Math.floor(Math.random() * 400) + 50;
+/*
 var enemy = new PIXI.sprite(//insert enemy sprite here)';
 enemy.anchor.x = 0.5;
 enemy.anchor.y = 0.5;
@@ -444,16 +425,6 @@ var enemy = new PIXI.sprite(//insert enemy sprite here)';
 enemy.anchor.x = 0.5;
 enemy.anchor.y = 0.5;
 */
-
-// Array that holds the enemies that are alive 
-var enemies = [];
-
-// Number that knows how many enemies will be spawned
-var enemy_spawn_number = 3; 
-
-/***************************
-*			Player Initialization 
-***************************/ 
 
 /*
 * An object that represents the information about the player
@@ -464,9 +435,6 @@ var player =
 	// Keeps track of the actual position of the player
   x: PC_START_X,
   y: PC_START_Y,
-	
-	// Damage your bullets do 
-	bulletDamage: 1,
 
 	// The speed the player will move at
   speed: 1.5,
@@ -555,7 +523,8 @@ function animate(timestamp)
 		updateCamera();
     playerMovementHandler();
     calculate_PC_aim();
-		moveEnemies();
+	moveEnemy();
+	
 		
 		// Check if the player has collided with any piece of the environment
     if( bump_engine.hit( player, tileMapManager.testRoom_map[ 0 ].sprite ) )
@@ -570,7 +539,7 @@ function animate(timestamp)
     for( var i = 0; i < PC_live_bullets.length; i++ )
       {
 
-      handleBullet( PC_live_bullets[ i ], i );
+      handleBullet( PC_live_bullets[ i ] );
       }
     }
   renderer.render(stage);
@@ -639,7 +608,7 @@ function spawnBullet( image )
 * Input:
 * 	- bullet: The specific bullet that we want to handle
 */
-function handleBullet( bullet, index )
+function handleBullet( bullet )
   {
 
 	// Save the position of the bullet, so we can use this variable a lot
@@ -648,22 +617,15 @@ function handleBullet( bullet, index )
 
 	// Move the bullet toward its destination
   moveBullet( bullet );
-	
-	/*
-	* These are in if statements because if the bullet hits something 
-	* or goes out of bounds, the bullet is removed. This is to prevent 
-	* other functions from trying to call the now removed bullet 
-	*/ 
 
 	// Check if the bullet has collided with something
 
 		// Check if the bullet has collided with the environment
 
 		// Check if the bullet has collided with an enemy
-	if( checkBulletEnemyCollision( bullet, index ) ) {}
 
 	// Check if the bullet has flown outside of the camera
-	else if( checkBulletOutOfBounds( bullet, bulletX, bulletY, index ) ) {}
+	checkBulletOutOfBounds( bullet, bulletX, bulletY );
   }
 
 /*
@@ -686,7 +648,7 @@ function moveBullet( bullet )
 * 	- bulletX: The x position of the bullet
 * 	- bulletY: the y position of the bullet
 */
-function checkBulletOutOfBounds( bullet, bulletX, bulletY, index )
+function checkBulletOutOfBounds( bullet, bulletX, bulletY )
 	{
 
 	// Checks if the bullet has left our rectangle
@@ -698,10 +660,7 @@ function checkBulletOutOfBounds( bullet, bulletX, bulletY, index )
 
 		// If so, remove it from the gameplayScreen
     gameplayScreen.removeChild( bullet );
-		PC_live_bullets.splice( index, 1 ); 
-		return true; 
     }
-	return false; 
 	}
 
 /*
@@ -727,6 +686,29 @@ function calculate_PC_aim()
 	// This number is only for the sprite
   PC_blaster.rotation = angle + 1.57;
   }
+
+function calculate_enemy_aim()
+  {
+
+	// Create variables that will hold vector between the mouse and player character
+  var xDirection;
+  var yDirection;
+	xDirection = player.x - enemy.relativeX;
+	yDirection = player.y - enemy.relativeY;
+
+	// Determine the angle that our player will shoot at
+  var angle = Math.atan2( yDirection, xDirection );
+
+	// Save the rotation of our aim to the player object.
+	// This is the number we're using for the bullet math
+  player.aimRotation = angle - 0.025;
+
+	// The sprite's rotation is slightly different and must be accounted for
+	// This number is only for the sprite
+  PC_blaster.rotation = angle + 1.57;
+  }
+
+
 
 /*******************************
 *       Player movement functions
@@ -777,6 +759,64 @@ function keyup_PC_movement( key )
   if( key.keyCode == D_KEY )
     { player.moveRight = false; }
   }
+var tweenSpeed = 1000;
+var enemyBullet = new PIXI.Sprite(PIXI.Texture.from('bullet.png'));
+var bulletMoving = false;
+function enemyShoot()
+{
+  bulletReset();	
+  enemyBullet.position.x = enemy_shooter.position.x;
+  enemyBullet.position.y = enemy_shooter.position.y;
+  var bulletX = enemyBullet.position.x;
+  var bulletY = enemyBullet.position.y;
+  bulletMoving = true;
+  var target_x = PC_body.position.x;
+  var target_y = PC_body.position.y;
+  gameplayScreen.addChild(enemyBullet);
+  createjs.Tween.get(enemyBullet.position).to({x: target_x, y: target_y}, tweenSpeed);
+  
+}
+
+function bulletReset()
+{
+	bullet.position.x = enemy_shooter.position.x;
+	bullet.position.y = enemy_shooter.position.x;
+}
+var time;
+
+function pewpewStuff()
+{
+	if( gameRunning )
+	{
+	enemyShoot();
+		
+	}
+	console.log('An enemy has shot!');
+}
+function timer(){
+    var time = setInterval(pewpewStuff,1000); 	
+}
+var enemySpeed = 0.5;
+function moveEnemy() {
+
+  // move the enemy right
+  if(enemy_chaser.position.x < PC_body.position.x) {
+    enemy_chaser.position.x = enemy_chaser.position.x + 1 * enemySpeed;
+  }
+  // move the enemy left
+  else if(enemy_chaser.position.x > PC_body.position.x) {
+    enemy_chaser.position.x = enemy_chaser.position.x - 1 * enemySpeed;
+  }
+  // move the enemy down
+  if(enemy_chaser.position.y < PC_body.position.y) {
+    enemy_chaser.position.y = enemy_chaser.position.y + 1 * enemySpeed;
+  }
+  // move the enemy up
+  else if(enemy_chaser.position.y > PC_body.position.y) {
+    enemy_chaser.position.y = enemy_chaser.position.y - 1 * enemySpeed;
+  }
+  
+}
 
 /*
 * Desc: Does the math to move the character
@@ -828,133 +868,8 @@ function initializePlayer( screen )
 
 		screen.addChild( PC_parts[ i ] );
 		}
-	spawnEnemies( screen ); 
-	}
-	
-/***********************************
-* 		Enemy Functions 
-***********************************/ 
-function spawnEnemies( container )
-	{
-		
-	for( var i = 0; i < enemy_spawn_number; i++ )
-		{
-		
-		xPos = Math.floor( Math.random() * 400 ) + 50;
-		yPos = Math.floor( Math.random() * 400 ) + 40;
-		
-		var enemy = new Enemy_chaser( xPos, yPos ); 
-
-		enemies.push( enemy ); 
-		container.addChild( enemy.sprite );
-		}
-	}
-
-function enemyShoot()
-{
-	// Create bullet sprite 
-  enemy_bullet = new PIXI.Sprite( PIXI.Texture.from( image ));
-	
-	// Add it to our gameplay screen 
-  gameplayScreen.addChild( enemy_bullet );
-	
-	// Initialize the initial position of the bullet 
-  enemy_bullet.position.x = enemy.x;
-  enemy_bullet.position.y = enemy.y;
-	
-	// Set the rotation of the bullet to be the same as the player's rotation 
-  enemy_bullet.rotation = player.aimRotation;
-}
-
-var sec = 5;
-function timer(){
-    var timer = setInterval(function(){
-        sec--;
-        if (sec < 0) {
-            clearInterval(timer);
-			sec = 5;
-        }
-    }, 1000);
-	
-}
-
-/*
-* Desc: A general function to move all of the enemies on the board
-*/ 
-function moveEnemies() 
-	{
-	
-	for( var i = 0; i < enemies.length; i++ )
-		{
-			
-		if( enemies[ i ].name == "chaser" )
-			{
-				
-			moveChaser( enemies[ i ].sprite ); 
-			}
-		}
-  }
-
-var chaser_speed = 0.5;
-function moveChaser( chaser )
-	{
-
-	// move the enemy right
-  if( chaser.position.x < PC_body.position.x) {
-    chaser.position.x = chaser.position.x + 1 * chaser_speed;
-  }
-  // move the enemy left
-  else if( chaser.position.x > PC_body.position.x) {
-    chaser.position.x = chaser.position.x - 1 * chaser_speed;
-  }
-  // move the enemy down
-  if( chaser.position.y < PC_body.position.y) {
-    chaser.position.y = chaser.position.y + 1 * chaser_speed;
-  }
-  // move the enemy up
-  else if( chaser.position.y > PC_body.position.y) {
-    chaser.position.y = chaser.position.y - 1 * chaser_speed;
-	}
-	}
-
-function checkBulletEnemyCollision( bullet, bullet_index )
-	{
-		
-	// Loop through all of the enemies 
-	for ( var i = 0; i < enemies.length; i++ )
-		{
-			
-		// Check if the bullet hits the enemy 
-		if( bump_engine.hit( bullet, enemies[ i ].sprite ) )
-      {
-
-      console.log( "enemy hit!" );
-			handleEnemyHit( enemies[ i ], gameplayScreen, i );
-			
-			// Once a bullet hits something, remove it from play
-			gameplayScreen.removeChild( bullet ); 
-			PC_live_bullets.splice( bullet_index, 1 ); 
-			return true; 
-      }
-		}
-	return false; 
-	}
-	
-
-function handleEnemyHit( enemy, container, enemy_index )
-	{
-		
-	// Reduce the enemy's HP by the bullet damage 
-	enemy.hitPoints -= player.bulletDamage; 
-	
-	// Check if the enemy should be dead
-	if( enemy.hitPoints <= 0 )
-		{
-
-		// Remove the enemy from play 
-		container.removeChild( enemy.sprite ); 
-		enemies.splice( enemy_index, 1 ); 
-		}
+		screen.addChild(enemy_chaser);
+		screen.addChild(enemy_shooter);
 	}
 
 /**********************************
@@ -1278,6 +1193,4 @@ function calculateCameraSensitivity()
 
 	camera_sensitivity = Math.abs( camera_sensitivity - 11 );
 	}
-
-
-//
+timer();
