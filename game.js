@@ -409,10 +409,12 @@ PIXI.loader
 *			Enemy Initialization 
 **************************/ 
 
+// Class that holds the information about the chaser 
 class Enemy_chaser 
 	{
 	
 	name = "chaser";
+	hitPoints = 2; 
 	sprite; 
 	
 	constructor( xPosition, yPosition )
@@ -443,11 +445,11 @@ enemy.anchor.x = 0.5;
 enemy.anchor.y = 0.5;
 */
 
-//var enemy_bestiary = [ enemy_chaser ]; 
-	
+// Array that holds the enemies that are alive 
 var enemies = [];
 
-var enemy_spawn_number = 1; 
+// Number that knows how many enemies will be spawned
+var enemy_spawn_number = 3; 
 
 /***************************
 *			Player Initialization 
@@ -462,6 +464,9 @@ var player =
 	// Keeps track of the actual position of the player
   x: PC_START_X,
   y: PC_START_Y,
+	
+	// Damage your bullets do 
+	bulletDamage: 1,
 
 	// The speed the player will move at
   speed: 1.5,
@@ -565,7 +570,7 @@ function animate(timestamp)
     for( var i = 0; i < PC_live_bullets.length; i++ )
       {
 
-      handleBullet( PC_live_bullets[ i ] );
+      handleBullet( PC_live_bullets[ i ], i );
       }
     }
   renderer.render(stage);
@@ -634,7 +639,7 @@ function spawnBullet( image )
 * Input:
 * 	- bullet: The specific bullet that we want to handle
 */
-function handleBullet( bullet )
+function handleBullet( bullet, index )
   {
 
 	// Save the position of the bullet, so we can use this variable a lot
@@ -643,16 +648,22 @@ function handleBullet( bullet )
 
 	// Move the bullet toward its destination
   moveBullet( bullet );
+	
+	/*
+	* These are in if statements because if the bullet hits something 
+	* or goes out of bounds, the bullet is removed. This is to prevent 
+	* other functions from trying to call the now removed bullet 
+	*/ 
 
 	// Check if the bullet has collided with something
 
 		// Check if the bullet has collided with the environment
 
 		// Check if the bullet has collided with an enemy
-	checkBulletEnemyCollision( bullet );
+	if( checkBulletEnemyCollision( bullet, index ) ) {}
 
 	// Check if the bullet has flown outside of the camera
-	checkBulletOutOfBounds( bullet, bulletX, bulletY );
+	else if( checkBulletOutOfBounds( bullet, bulletX, bulletY, index ) ) {}
   }
 
 /*
@@ -675,7 +686,7 @@ function moveBullet( bullet )
 * 	- bulletX: The x position of the bullet
 * 	- bulletY: the y position of the bullet
 */
-function checkBulletOutOfBounds( bullet, bulletX, bulletY )
+function checkBulletOutOfBounds( bullet, bulletX, bulletY, index )
 	{
 
 	// Checks if the bullet has left our rectangle
@@ -687,7 +698,10 @@ function checkBulletOutOfBounds( bullet, bulletX, bulletY )
 
 		// If so, remove it from the gameplayScreen
     gameplayScreen.removeChild( bullet );
+		PC_live_bullets.splice( index, 1 ); 
+		return true; 
     }
+	return false; 
 	}
 
 /*
@@ -713,7 +727,6 @@ function calculate_PC_aim()
 	// This number is only for the sprite
   PC_blaster.rotation = angle + 1.57;
   }
-
 
 /*******************************
 *       Player movement functions
@@ -865,6 +878,9 @@ function timer(){
 	
 }
 
+/*
+* Desc: A general function to move all of the enemies on the board
+*/ 
 function moveEnemies() 
 	{
 	
@@ -901,26 +917,44 @@ function moveChaser( chaser )
 	}
 	}
 
-function checkBulletEnemyCollision( bullet )
+function checkBulletEnemyCollision( bullet, bullet_index )
 	{
 		
+	// Loop through all of the enemies 
 	for ( var i = 0; i < enemies.length; i++ )
 		{
 			
+		// Check if the bullet hits the enemy 
 		if( bump_engine.hit( bullet, enemies[ i ].sprite ) )
       {
 
       console.log( "enemy hit!" );
-			handleEnemyHit( enemies[ i ].sprite, gameplayScreen );
-			enemies.splice( i, 1 ); 
+			handleEnemyHit( enemies[ i ], gameplayScreen, i );
+			
+			// Once a bullet hits something, remove it from play
+			gameplayScreen.removeChild( bullet ); 
+			PC_live_bullets.splice( bullet_index, 1 ); 
+			return true; 
       }
 		}
+	return false; 
 	}
 	
-function handleEnemyHit( enemy, container )
+
+function handleEnemyHit( enemy, container, enemy_index )
 	{
 		
-	container.removeChild( enemy ); 
+	// Reduce the enemy's HP by the bullet damage 
+	enemy.hitPoints -= player.bulletDamage; 
+	
+	// Check if the enemy should be dead
+	if( enemy.hitPoints <= 0 )
+		{
+
+		// Remove the enemy from play 
+		container.removeChild( enemy.sprite ); 
+		enemies.splice( enemy_index, 1 ); 
+		}
 	}
 
 /**********************************
