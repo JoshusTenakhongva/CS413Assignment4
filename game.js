@@ -687,28 +687,6 @@ function calculate_PC_aim()
   PC_blaster.rotation = angle + 1.57;
   }
 
-function calculate_enemy_aim()
-  {
-
-	// Create variables that will hold vector between the mouse and player character
-  var xDirection;
-  var yDirection;
-	xDirection = player.x - enemy.relativeX;
-	yDirection = player.y - enemy.relativeY;
-
-	// Determine the angle that our player will shoot at
-  var angle = Math.atan2( yDirection, xDirection );
-
-	// Save the rotation of our aim to the player object.
-	// This is the number we're using for the bullet math
-  player.aimRotation = angle - 0.025;
-
-	// The sprite's rotation is slightly different and must be accounted for
-	// This number is only for the sprite
-  PC_blaster.rotation = angle + 1.57;
-  }
-
-
 
 /*******************************
 *       Player movement functions
