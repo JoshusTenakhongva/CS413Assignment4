@@ -405,11 +405,26 @@ PIXI.loader
 *     Character Initialization
 ************************************************************/
 
-var enemy_chaser = new PIXI.Sprite( PIXI.Texture.from( "playerCharacter.png" ));
-enemy_chaser.anchor.x = 0.5;
-enemy_chaser.anchor.y = 0.5;
-enemy_chaser.position.x = Math.floor(Math.random() * 400) + 40;
-enemy_chaser.position.y = Math.floor(Math.random() * 400) + 50;
+/**************************
+*			Enemy Initialization 
+**************************/ 
+
+class Enemy_chaser 
+	{
+	
+	name = "chaser";
+	sprite; 
+	
+	constructor( xPosition, yPosition )
+		{
+		
+		this.sprite = new PIXI.Sprite( PIXI.Texture.from( "playerCharacter.png" ));
+		this.sprite.anchor.x = 0.5; 
+		this.sprite.anchor.y = 0.5; 
+		this.sprite.position.x = xPosition; 
+		this.sprite.position.y = yPosition; 
+		}	
+	}
 
 /*var enemy_shooter = new PIXI.sprite(//insert enemy sprite here)';
 enemy.anchor.x = 0.5;
@@ -428,7 +443,15 @@ enemy.anchor.x = 0.5;
 enemy.anchor.y = 0.5;
 */
 
-var enemies = [enemy_chaser];
+//var enemy_bestiary = [ enemy_chaser ]; 
+	
+var enemies = [];
+
+var enemy_spawn_number = 1; 
+
+/***************************
+*			Player Initialization 
+***************************/ 
 
 /*
 * An object that represents the information about the player
@@ -527,7 +550,7 @@ function animate(timestamp)
 		updateCamera();
     playerMovementHandler();
     calculate_PC_aim();
-	moveEnemy();
+		moveEnemies();
 		
 		// Check if the player has collided with any piece of the environment
     if( bump_engine.hit( player, tileMapManager.testRoom_map[ 0 ].sprite ) )
@@ -801,10 +824,16 @@ function initializePlayer( screen )
 function spawnEnemies( container )
 	{
 		
-	for( var i = 0; i < enemies.length; i++ )
+	for( var i = 0; i < enemy_spawn_number; i++ )
 		{
 		
-		container.addChild( enemies[ i ] );
+		xPos = Math.floor( Math.random() * 400 ) + 50;
+		yPos = Math.floor( Math.random() * 400 ) + 40;
+		
+		var enemy = new Enemy_chaser( xPos, yPos ); 
+
+		enemies.push( enemy ); 
+		container.addChild( enemy.sprite );
 		}
 	}
 
@@ -835,26 +864,42 @@ function timer(){
     }, 1000);
 	
 }
-var enemySpeed = 0.5;
-function moveEnemy() {
 
-  // move the enemy right
-  if(enemy_chaser.position.x < PC_body.position.x) {
-    enemy_chaser.position.x = enemy_chaser.position.x + 1 * enemySpeed;
+function moveEnemies() 
+	{
+	
+	for( var i = 0; i < enemies.length; i++ )
+		{
+			
+		if( enemies[ i ].name == "chaser" )
+			{
+				
+			moveChaser( enemies[ i ].sprite ); 
+			}
+		}
+  }
+
+var chaser_speed = 0.5;
+function moveChaser( chaser )
+	{
+
+	// move the enemy right
+  if( chaser.position.x < PC_body.position.x) {
+    chaser.position.x = chaser.position.x + 1 * chaser_speed;
   }
   // move the enemy left
-  else if(enemy_chaser.position.x > PC_body.position.x) {
-    enemy_chaser.position.x = enemy_chaser.position.x - 1 * enemySpeed;
+  else if( chaser.position.x > PC_body.position.x) {
+    chaser.position.x = chaser.position.x - 1 * chaser_speed;
   }
   // move the enemy down
-  if(enemy_chaser.position.y < PC_body.position.y) {
-    enemy_chaser.position.y = enemy_chaser.position.y + 1 * enemySpeed;
+  if( chaser.position.y < PC_body.position.y) {
+    chaser.position.y = chaser.position.y + 1 * chaser_speed;
   }
   // move the enemy up
-  else if(enemy_chaser.position.y > PC_body.position.y) {
-    enemy_chaser.position.y = enemy_chaser.position.y - 1 * enemySpeed;
-  }
-}
+  else if( chaser.position.y > PC_body.position.y) {
+    chaser.position.y = chaser.position.y - 1 * chaser_speed;
+	}
+	}
 
 function checkBulletEnemyCollision( bullet )
 	{
@@ -862,11 +907,12 @@ function checkBulletEnemyCollision( bullet )
 	for ( var i = 0; i < enemies.length; i++ )
 		{
 			
-		if( bump_engine.hit( bullet, enemies[ i ]) )
+		if( bump_engine.hit( bullet, enemies[ i ].sprite ) )
       {
 
       console.log( "enemy hit!" );
-			handleEnemyHit( enemies[ i ], gameplayScreen );
+			handleEnemyHit( enemies[ i ].sprite, gameplayScreen );
+			enemies.splice( i, 1 ); 
       }
 		}
 	}
