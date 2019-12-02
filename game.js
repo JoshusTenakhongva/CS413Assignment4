@@ -400,6 +400,29 @@ PIXI.loader
 *     Character Initialization
 ************************************************************/
 
+var enemies = [enemy_chaser];
+var enemy_chaser = new PIXI.Sprite( PIXI.Texture.from( "playerCharacter.png" ));
+enemy_chaser.anchor.x = 0.5;
+enemy_chaser.anchor.y = 0.5;
+enemy_chaser.position.x = Math.floor(Math.random() * 400) + 40;
+enemy_chaser.position.y = Math.floor(Math.random() * 400) + 50;
+
+/*var enemy_shooter = new PIXI.sprite(//insert enemy sprite here)';
+enemy.anchor.x = 0.5;
+enemy.anchor.y = 0.5;
+
+var enemy = new PIXI.sprite(//insert enemy sprite here)';
+enemy.anchor.x = 0.5;
+enemy.anchor.y = 0.5;
+
+var enemy = new PIXI.sprite(//insert enemy sprite here)';
+enemy.anchor.x = 0.5;
+enemy.anchor.y = 0.5;
+
+var enemy = new PIXI.sprite(//insert enemy sprite here)';
+enemy.anchor.x = 0.5;
+enemy.anchor.y = 0.5;
+*/
 
 /*
 * An object that represents the information about the player
@@ -498,6 +521,7 @@ function animate(timestamp)
 		updateCamera();
     playerMovementHandler();
     calculate_PC_aim();
+	moveEnemy();
 		
 		// Check if the player has collided with any piece of the environment
     if( bump_engine.hit( player, tileMapManager.testRoom_map[ 0 ].sprite ) )
@@ -711,6 +735,54 @@ function keyup_PC_movement( key )
     { player.moveRight = false; }
   }
 
+function enemyShoot()
+{
+	// Create bullet sprite 
+  enemy_bullet = new PIXI.Sprite( PIXI.Texture.from( image ));
+	
+	// Add it to our gameplay screen 
+  gameplayScreen.addChild( enemy_bullet );
+	
+	// Initialize the initial position of the bullet 
+  enemy_bullet.position.x = enemy.x;
+  enemy_bullet.position.y = enemy.y;
+	
+	// Set the rotation of the bullet to be the same as the player's rotation 
+  enemy_bullet.rotation = player.aimRotation;
+}
+
+var sec = 5;
+function timer(){
+    var timer = setInterval(function(){
+        sec--;
+        if (sec < 0) {
+            clearInterval(timer);
+			sec = 5;
+        }
+    }, 1000);
+	
+}
+var enemySpeed = 0.5;
+function moveEnemy() {
+
+  // move the enemy right
+  if(enemy_chaser.position.x < PC_body.position.x) {
+    enemy_chaser.position.x = enemy_chaser.position.x + 1 * enemySpeed;
+  }
+  // move the enemy left
+  else if(enemy_chaser.position.x > PC_body.position.x) {
+    enemy_chaser.position.x = enemy_chaser.position.x - 1 * enemySpeed;
+  }
+  // move the enemy down
+  if(enemy_chaser.position.y < PC_body.position.y) {
+    enemy_chaser.position.y = enemy_chaser.position.y + 1 * enemySpeed;
+  }
+  // move the enemy up
+  else if(enemy_chaser.position.y > PC_body.position.y) {
+    enemy_chaser.position.y = enemy_chaser.position.y - 1 * enemySpeed;
+  }
+}
+
 /*
 * Desc: Does the math to move the character
 */
@@ -761,6 +833,7 @@ function initializePlayer( screen )
 
 		screen.addChild( PC_parts[ i ] );
 		}
+		screen.addChild(enemy_chaser);
 	}
 
 /**********************************
