@@ -305,6 +305,11 @@ var tileSetManager =
 			height: 10,
 			width: 50
 		},
+		
+		/*
+		* We can do these tiles later, but for now, we can test out collsion with  
+			tile 4 and 5. 
+		*/ 
 		// Tile 6
 		{ collisions_on: false },
 		{ collisions_on: false },
