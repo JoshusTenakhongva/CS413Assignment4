@@ -405,7 +405,6 @@ PIXI.loader
 *     Character Initialization
 ************************************************************/
 
-var enemies = [enemy_chaser];
 var enemy_chaser = new PIXI.Sprite( PIXI.Texture.from( "playerCharacter.png" ));
 enemy_chaser.anchor.x = 0.5;
 enemy_chaser.anchor.y = 0.5;
@@ -428,6 +427,8 @@ var enemy = new PIXI.sprite(//insert enemy sprite here)';
 enemy.anchor.x = 0.5;
 enemy.anchor.y = 0.5;
 */
+
+var enemies = [enemy_chaser];
 
 /*
 * An object that represents the information about the player
@@ -625,6 +626,7 @@ function handleBullet( bullet )
 		// Check if the bullet has collided with the environment
 
 		// Check if the bullet has collided with an enemy
+	checkBulletEnemyCollision( bullet );
 
 	// Check if the bullet has flown outside of the camera
 	checkBulletOutOfBounds( bullet, bulletX, bulletY );
@@ -740,54 +742,6 @@ function keyup_PC_movement( key )
     { player.moveRight = false; }
   }
 
-function enemyShoot()
-{
-	// Create bullet sprite 
-  enemy_bullet = new PIXI.Sprite( PIXI.Texture.from( image ));
-	
-	// Add it to our gameplay screen 
-  gameplayScreen.addChild( enemy_bullet );
-	
-	// Initialize the initial position of the bullet 
-  enemy_bullet.position.x = enemy.x;
-  enemy_bullet.position.y = enemy.y;
-	
-	// Set the rotation of the bullet to be the same as the player's rotation 
-  enemy_bullet.rotation = player.aimRotation;
-}
-
-var sec = 5;
-function timer(){
-    var timer = setInterval(function(){
-        sec--;
-        if (sec < 0) {
-            clearInterval(timer);
-			sec = 5;
-        }
-    }, 1000);
-	
-}
-var enemySpeed = 0.5;
-function moveEnemy() {
-
-  // move the enemy right
-  if(enemy_chaser.position.x < PC_body.position.x) {
-    enemy_chaser.position.x = enemy_chaser.position.x + 1 * enemySpeed;
-  }
-  // move the enemy left
-  else if(enemy_chaser.position.x > PC_body.position.x) {
-    enemy_chaser.position.x = enemy_chaser.position.x - 1 * enemySpeed;
-  }
-  // move the enemy down
-  if(enemy_chaser.position.y < PC_body.position.y) {
-    enemy_chaser.position.y = enemy_chaser.position.y + 1 * enemySpeed;
-  }
-  // move the enemy up
-  else if(enemy_chaser.position.y > PC_body.position.y) {
-    enemy_chaser.position.y = enemy_chaser.position.y - 1 * enemySpeed;
-  }
-}
-
 /*
 * Desc: Does the math to move the character
 */
@@ -838,7 +792,89 @@ function initializePlayer( screen )
 
 		screen.addChild( PC_parts[ i ] );
 		}
-		screen.addChild(enemy_chaser);
+	spawnEnemies( screen ); 
+	}
+	
+/***********************************
+* 		Enemy Functions 
+***********************************/ 
+function spawnEnemies( container )
+	{
+		
+	for( var i = 0; i < enemies.length; i++ )
+		{
+		
+		container.addChild( enemies[ i ] );
+		}
+	}
+
+function enemyShoot()
+{
+	// Create bullet sprite 
+  enemy_bullet = new PIXI.Sprite( PIXI.Texture.from( image ));
+	
+	// Add it to our gameplay screen 
+  gameplayScreen.addChild( enemy_bullet );
+	
+	// Initialize the initial position of the bullet 
+  enemy_bullet.position.x = enemy.x;
+  enemy_bullet.position.y = enemy.y;
+	
+	// Set the rotation of the bullet to be the same as the player's rotation 
+  enemy_bullet.rotation = player.aimRotation;
+}
+
+var sec = 5;
+function timer(){
+    var timer = setInterval(function(){
+        sec--;
+        if (sec < 0) {
+            clearInterval(timer);
+			sec = 5;
+        }
+    }, 1000);
+	
+}
+var enemySpeed = 0.5;
+function moveEnemy() {
+
+  // move the enemy right
+  if(enemy_chaser.position.x < PC_body.position.x) {
+    enemy_chaser.position.x = enemy_chaser.position.x + 1 * enemySpeed;
+  }
+  // move the enemy left
+  else if(enemy_chaser.position.x > PC_body.position.x) {
+    enemy_chaser.position.x = enemy_chaser.position.x - 1 * enemySpeed;
+  }
+  // move the enemy down
+  if(enemy_chaser.position.y < PC_body.position.y) {
+    enemy_chaser.position.y = enemy_chaser.position.y + 1 * enemySpeed;
+  }
+  // move the enemy up
+  else if(enemy_chaser.position.y > PC_body.position.y) {
+    enemy_chaser.position.y = enemy_chaser.position.y - 1 * enemySpeed;
+  }
+}
+
+function checkBulletEnemyCollision( bullet )
+	{
+		
+	for ( var i = 0; i < enemies.length; i++ )
+		{
+			
+		if( bump_engine.hit( bullet, enemies[ i ]) )
+      {
+
+      console.log( "enemy hit!" );
+			handleEnemyHit( enemies[ i ], gameplayScreen );
+      }
+		}
+	}
+	
+function handleEnemyHit( enemy, container )
+	{
+		
+	container.removeChild( enemy ); 
 	}
 
 /**********************************
