@@ -595,7 +595,6 @@ function animate(timestamp)
     playerMovementHandler();
     calculate_PC_aim();
 		moveEnemies();
-		enemyShoot();
 		checkPlayerCollides(); 
 		
 		// Check if the player has collided with any piece of the environment
@@ -885,7 +884,9 @@ function initializePlayer( screen )
 		{
 
 		screen.addChild( PC_parts[ i ] );
+		
 		}
+		
 	spawnEnemies( screen ); 
 	}
 	
@@ -933,6 +934,7 @@ function checkPlayerCollides()
 		*/ 
 	}
 	
+var enemyShooters = [];
 /***********************************
 * 		Enemy Functions 
 ***********************************/ 
@@ -940,7 +942,7 @@ function spawnEnemies( container )
 	{
 		
 		enemies = []; 
-		
+		enemyShooters = [];
 		for( var i = 0; i < enemy_spawn_number + enemyWave; i++ )
 			{
 			
@@ -955,29 +957,35 @@ function spawnEnemies( container )
 			}
 		
 		
-		for( var i = 0; i < (enemyWave-1)*2; i++ )
+		for( var i = 0; i < (enemyWave)*2; i++ )
 			{
 			
 			xPos = Math.floor( Math.random() * 350 ) + 200 ;
 			yPos = Math.floor( Math.random() * 250 ) + 300 ;
 			
 			var enemy = new Enemy_shooter( xPos, yPos ); 
+			
 			enemy.hitPoints += Math.floor( enemyWave / 2 ); 
 
 			enemies.push( enemy ); 
+			enemyShooters.push(enemy);
 			container.addChild( enemy.sprite );
 			}
 	}
 
 var tweenSpeed = 1000;
-var enemyBullet = new PIXI.Sprite(PIXI.Texture.from('bullet.png'));
+
 var bulletMoving = false
 
 function enemyShoot()
 {
-  bulletReset();	
-  enemyBullet.position.x = enemyshooter.position.x;
-  enemyBullet.position.y = enemyshooter.position.y;
+for(let i=0;i<enemyShooters.length;i++)	
+{
+  var enemyBullet = new PIXI.Sprite(PIXI.Texture.from('bullet.png'));
+  var enemy = enemyShooters[i];
+  bulletReset(enemy);
+  enemyBullet.position.x = enemy.position.x;
+  enemyBullet.position.y = enemy.position.y;
   var bulletX = enemyBullet.position.x;
   var bulletY = enemyBullet.position.y;
   bulletMoving = true;
@@ -985,6 +993,7 @@ function enemyShoot()
   var target_y = PC_body.position.y;
   gameplayScreen.addChild(enemyBullet);
   createjs.Tween.get(enemyBullet.position).to({x: target_x, y: target_y}, tweenSpeed);
+		}  
 }
 
 function bulletReset(enemyshooter)
@@ -993,20 +1002,21 @@ function bulletReset(enemyshooter)
 	bullet.position.y = enemyshooter.position.x;
 }
 
+var time;
+
 function pewpewStuff()
 {
 	if( gameRunning )
 	{
-	enemyShoot();
+		enemyShoot();
 		
+		console.log('An enemy has shot!');
 	}
-	console.log('An enemy has shot!');
 }
 
-var time;
 
 function timer(){
-    var time = setInterval(pewpewStuff,1000); 	
+    var time = setInterval(pewpewStuff,5000); 	
 }
 
 
