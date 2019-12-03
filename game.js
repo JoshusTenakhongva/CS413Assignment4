@@ -1471,4 +1471,4 @@ function calculateCameraSensitivity()
 	}
 
 
-//
+timer();
