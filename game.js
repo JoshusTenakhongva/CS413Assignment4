@@ -111,6 +111,9 @@ var optionsScreen = new PIXI.Container();
 // Screen that appears if the player wants to pause during gameplay
 var pauseMenu = new PIXI.Container();
 
+// Screen that appears when player's health goes to or below 0
+var deathScreen = new PIXI.Container();
+
 /*
 * Useful if we want to incorporate different levels
 *
@@ -141,6 +144,15 @@ startButton.position.x = 400;
 startButton.position.y = 300;
 startButton.anchor.x = 0.5;
 startButton.anchor.y = 0.5;
+
+// Button that restarts the game
+var restartButton = new PIXI.Sprite( PIXI.Texture.from( "restartButton.png" ));
+restartButton.interactive = true;
+restartButton.on( 'mousedown', startButtonClickHandler );
+restartButton.position.x = 400;
+restartButton.position.y = 300;
+restartButton.anchor.x = 0.5;
+restartButton.anchor.y = 0.5;
 
 // Button that takes the player to the tutorial
 var tutorialButton = new PIXI.Sprite( PIXI.Texture.from( "tutorialButton.png" ));
@@ -548,10 +560,10 @@ var player =
 	PC_body : new PIXI.Sprite( PIXI.Texture.from( "playerCharacter.png" )),
 	PC_blaster : new PIXI.Sprite( PIXI.Texture.from( "blaster.png" )),
 	
-	collisionBox: new PIXI.Rectangle( this.collisionX,
-																		this.collisionY,
-																		this.collisionBoxWidth,
-																		this.collisionBoxHeight )
+	collisionBox: new PIXI.Rectangle( 	this.collisionX,
+										this.collisionY,
+										this.collisionBoxWidth,
+										this.collisionBoxHeight )
   };
 
 class PowerUp
@@ -976,13 +988,15 @@ function checkPlayerCollides()
 		}
 	}
 	
+	
+	
 function playerDeath()
 	{
 		
 	console.log( "you died" )
 	restartGame(); 
 	enemyWave = 1; 
-	menuButtonClickHandler(); 
+	deathScreenHandler(); 
 	}
 	
 function restartGame()
@@ -1286,7 +1300,12 @@ function handleEnemyHit( enemy, container, enemy_index )
 		// Check if all of the enemies have been killed 
 		if( enemies.length == 0 )
 			{
-				
+				//at the end of each round, heal five health if below max health (100)
+				if(player.hitPoints < 100 )
+				{
+					player.hitPoints += 5;
+				}
+			
 			var waveText = new PIXI.Text( "Wave " + enemyWave + " completed" );
 			waveText.anchor.x = 0.5; 
 			waveText.anchor.y = 0.5; 
@@ -1489,6 +1508,7 @@ function startButtonClickHandler( e )
 
   // Remove the title screen from the stage
 	stage.removeChild( titleScreen );
+	stage.removeChild( deathScreen );
 	// Add the containers necessary for gameplay to the stage
 	stage.addChild( gameplayScreen );
 
@@ -1585,6 +1605,29 @@ function menuButtonClickHandler( e )
   gameRunning = false;
 	}
 
+function deathScreenHandler( e )
+{
+	
+	var titleText = new PIXI.Text( "You Died" );
+	titleText.position.x = 400;
+	titleText.position.y = 200;
+	titleText.anchor.x = 0.5;
+	titleText.anchor.y = 0.5;
+
+  // Add the text to the screen
+	titleScreen.addChild( titleText );
+	
+	// Add the containers necessary for gameplay to the stage
+	stage.removeChild( gameplayScreen );
+	stage.addChild( deathScreen );
+	stage.addChild( menuButton );
+	stage.addChild( restartButton );
+	
+	// Reset the scale if it changed 
+	menuButton.scale.x = 1;
+	menuButton.scale.y = 1;
+
+}	
 /************************************
 *        Camera Movement
 **************************************/
