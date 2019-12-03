@@ -467,6 +467,7 @@ var player =
 	
 	// Damage your bullets do 
 	bulletDamage: 1,
+	bulletNumber: 1, 
 
 	// The speed the player will move at
   speed: 1.5,
@@ -606,7 +607,12 @@ function getMousePosition(){ return renderer.plugins.interaction.mouse.global; }
 function player_shoot()
   {
   console.log( "shoot" );
-  spawnBullet( "bullet.png" );
+	
+	for( var i = 0; i < player.bulletNumber; i++ )
+		{
+			
+		spawnBullet( "bullet.png", -player.bulletNumber + 1 + (i * 2) );
+		}
   }
 
 /*
@@ -614,11 +620,12 @@ function player_shoot()
 * Input:
 * 	- image: The png that we want the bullet to look like
 */
-function spawnBullet( image )
+function spawnBullet( image, offset )
   {
 
 	// Create bullet sprite 
   bullet = new PIXI.Sprite( PIXI.Texture.from( image ));
+	bullet.height = 5; 
 	
 	// Add it to our gameplay screen 
   gameplayScreen.addChild( bullet );
@@ -628,7 +635,7 @@ function spawnBullet( image )
   bullet.position.y = player.y;
 	
 	// Set the rotation of the bullet to be the same as the player's rotation 
-  bullet.rotation = player.aimRotation;
+  bullet.rotation = player.aimRotation + offset * 0.1;
 	
 	// Add the bullet to our array of live player character bullets 
   PC_live_bullets.push( bullet );
