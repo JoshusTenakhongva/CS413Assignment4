@@ -444,6 +444,7 @@ class Enemy_shooter
 	hitPoints = 1; 
 	sprite; 
 	damage = 3; 
+	windingUp = false; 
 	
 	constructor( xPosition, yPosition )
 		{
@@ -454,25 +455,6 @@ class Enemy_shooter
 		this.sprite.position.x = xPosition; 
 		this.sprite.position.y = yPosition; 
 		}	
-	}
-	
-class Enemy_bullet
-	{
-		
-	name = "bullet";
-	sprite; 
-	
-	constructor( xPosition, yPosition )
-		{
-			
-		this.sprite = new PIXI.Sprite( PIXI.Texture.from( "bullet.png" ));
-		this.sprite.anchor.x = 0.5; 
-		this.sprite.anchor.y = 0.5; 
-		this.sprite.position.x = xPosition; 
-		this.sprite.position.y = yPosition; 
-		
-		}
-	
 	}
 
 /*var enemy_shooter = new PIXI.sprite(//insert enemy sprite here)';
@@ -499,6 +481,8 @@ var enemies = [];
 var enemy_spawn_number = 10; 
 
 var enemy_live_bullets = []; 
+
+var enemy_bulletDamage = 5;
 
 /***************************
 *			Player Initialization 
@@ -625,7 +609,7 @@ function animate(timestamp)
     playerMovementHandler();
     calculate_PC_aim();
 		moveEnemies();
-		//enemyShoot();
+		enemyAttack(); 
 		checkPlayerCollides(); 
 		
 		// Check if the player has collided with any piece of the environment
@@ -644,12 +628,13 @@ function animate(timestamp)
       handleBullet( PC_live_bullets[ i ], i );
       }
 			
+			
 		for( var i = 0; i < enemy_live_bullets.length; i++ )
 			{
 				
-			
+			handleEnemyBullet( enemy_live_bullets[ i ], i ); 
 			}
-			
+			 
 		document.getElementById( "playerHitPoints" ).innerHTML = player.hitPoints; 
     }
   renderer.render(stage);
@@ -1012,6 +997,7 @@ function spawnEnemies( container )
 	{
 		
 		enemies = []; 
+		enemy_live_bullets = []; 
 		
 		for( var i = 0; i < enemy_spawn_number + enemyWave; i++ )
 			{
@@ -1041,10 +1027,11 @@ function spawnEnemies( container )
 			}
 	}
 
+/*
 var tweenSpeed = 1000;
 var enemyBullet = new PIXI.Sprite(PIXI.Texture.from('bullet.png'));
 var bulletMoving = false
-
+*/ 
 function enemyAttack()
 	{
 		
@@ -1054,11 +1041,81 @@ function enemyAttack()
 		if( enemies[ i ].name == "shooter" )
 			{
 				
-			
+			if( enemies[ i ].windingUp == false )
+				{
+					
+				enemies[ i ].windingUp = true; 
+				setTimeout( spawnEnemyBullet, 5000, enemies[ i ] ); 
+				}
 			}
 		}
 	}
 	
+function handleEnemyBullet( bullet, index )
+	{
+		
+	moveBullet( bullet ); 
+	
+	console.log( "move bullet fine" ); 
+	checkEnemyBulletHitsPC( bullet, index ); 
+	}
+	
+function spawnEnemyBullet( shooter )
+	{
+		
+	var bulletRotation = findEnemyBulletRotation( shooter );
+	
+	var bullet = new PIXI.Sprite(PIXI.Texture.from('bullet.png'));
+	bullet.rotation = bulletRotation; 
+	bullet.position.x = shooter.sprite.position.x;
+	bullet.position.y = shooter.sprite.position.y; 
+	bullet.anchor.x = 0.5; 
+	bullet.anchor.y = 0.5; 
+	bullet.height *= 0.5; 
+	bullet.width *= 0.5; 
+	
+	// Add it to our gameplay screen 
+  gameplayScreen.addChild( bullet );
+
+	// Add the bullet to our array of live player character bullets 
+  enemy_live_bullets.push( bullet );
+	
+	shooter.windingUp = false; 
+	}
+	
+function findEnemyBulletRotation( shooter )
+	{
+		
+	// Create variables that will hold vector between the mouse and player character
+  var xDirection;
+  var yDirection;
+	xDirection = player.x - shooter.sprite.position.x;
+	yDirection = player.y - shooter.sprite.position.y;
+
+	// Determine the angle that our player will shoot at
+  return Math.atan2( yDirection, xDirection );
+	}
+	
+function checkEnemyBulletHitsPC( bullet, index )
+	{
+		
+	if( bump_engine.hit( player.PC_body, bullet ) )
+		{
+			
+		player.hitPoints -= enemy_bulletDamage; 
+		
+		// Remove the enemy from play 
+		gameplayScreen.removeChild( bullet ); 
+		enemy_live_bullets.splice( index, 1 ); 
+			
+		if( player.hitPoints <= 0 )
+			{
+				
+			console.log( "bullet killed player" )
+			playerDeath();
+			}
+		}
+	}
 	
 /*
 function enemyShoot( shooter )
@@ -1091,13 +1148,13 @@ function pewpewStuff()
 	}
 	console.log('An enemy has shot!');
 }
-*/ 
+ 
 
 var time;
 
 function timer(){
     var time = setInterval(pewpewStuff,1000); 	
-}
+}*/ 
 
 
 /*
@@ -1563,4 +1620,4 @@ function calculateCameraSensitivity()
 	}
 
 
-timer();
+//timer();
