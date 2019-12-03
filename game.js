@@ -46,6 +46,8 @@ const BULLET_CAP = 6;
 // The speed that the bullets will move at
 const BULLET_SPEED = 13;
 
+const ENEMY_BULLET_SPEED = 5; 
+
 /*****************************************************
 *     Global Variables
 ******************************************************/
@@ -424,6 +426,7 @@ class Enemy_chaser
 	hitPoints = 3; 
 	sprite; 
 	damage = 10; 
+	alive = true; 
 	
 	constructor( xPosition, yPosition )
 		{
@@ -445,6 +448,7 @@ class Enemy_shooter
 	sprite; 
 	damage = 3; 
 	windingUp = false; 
+	alive = true; 
 	
 	constructor( xPosition, yPosition )
 		{
@@ -1054,33 +1058,35 @@ function enemyAttack()
 function handleEnemyBullet( bullet, index )
 	{
 		
-	moveBullet( bullet ); 
-	
-	console.log( "move bullet fine" ); 
+	moveEnemyBullet( bullet ); 
 	checkEnemyBulletHitsPC( bullet, index ); 
 	}
 	
 function spawnEnemyBullet( shooter )
 	{
 		
-	var bulletRotation = findEnemyBulletRotation( shooter );
+	if( shooter.alive )
+		{
+			
+		var bulletRotation = findEnemyBulletRotation( shooter );
 	
-	var bullet = new PIXI.Sprite(PIXI.Texture.from('bullet.png'));
-	bullet.rotation = bulletRotation; 
-	bullet.position.x = shooter.sprite.position.x;
-	bullet.position.y = shooter.sprite.position.y; 
-	bullet.anchor.x = 0.5; 
-	bullet.anchor.y = 0.5; 
-	bullet.height *= 0.5; 
-	bullet.width *= 0.5; 
-	
-	// Add it to our gameplay screen 
-  gameplayScreen.addChild( bullet );
+		var bullet = new PIXI.Sprite(PIXI.Texture.from('bullet.png'));
+		bullet.rotation = bulletRotation; 
+		bullet.position.x = shooter.sprite.position.x;
+		bullet.position.y = shooter.sprite.position.y; 
+		bullet.anchor.x = 0.5; 
+		bullet.anchor.y = 0.5; 
+		bullet.height *= 0.5; 
+		bullet.width *= 0.5; 
+		
+		// Add it to our gameplay screen 
+		gameplayScreen.addChild( bullet );
 
-	// Add the bullet to our array of live player character bullets 
-  enemy_live_bullets.push( bullet );
-	
-	shooter.windingUp = false; 
+		// Add the bullet to our array of live player character bullets 
+		enemy_live_bullets.push( bullet );
+		
+		shooter.windingUp = false; 
+		}
 	}
 	
 function findEnemyBulletRotation( shooter )
@@ -1116,6 +1122,14 @@ function checkEnemyBulletHitsPC( bullet, index )
 			}
 		}
 	}
+	
+function moveEnemyBullet( bullet )
+  {
+
+	// Math stuff that I don't really get, but it works. GEOMETERY!
+  bullet.position.x = bullet.position.x + ENEMY_BULLET_SPEED * Math.cos( bullet.rotation );
+  bullet.position.y = bullet.position.y + ENEMY_BULLET_SPEED * Math.sin( bullet.rotation );
+  }
 	
 /*
 function enemyShoot( shooter )
@@ -1265,6 +1279,7 @@ function handleEnemyHit( enemy, container, enemy_index )
 			} 
 
 		// Remove the enemy from play 
+		enemy.alive = false; 
 		container.removeChild( enemy.sprite ); 
 		enemies.splice( enemy_index, 1 ); 
 		
