@@ -455,6 +455,25 @@ class Enemy_shooter
 		this.sprite.position.y = yPosition; 
 		}	
 	}
+	
+class Enemy_bullet
+	{
+		
+	name = "bullet";
+	sprite; 
+	
+	constructor( xPosition, yPosition )
+		{
+			
+		this.sprite = new PIXI.Sprite( PIXI.Texture.from( "bullet.png" ));
+		this.sprite.anchor.x = 0.5; 
+		this.sprite.anchor.y = 0.5; 
+		this.sprite.position.x = xPosition; 
+		this.sprite.position.y = yPosition; 
+		
+		}
+	
+	}
 
 /*var enemy_shooter = new PIXI.sprite(//insert enemy sprite here)';
 enemy.anchor.x = 0.5;
@@ -478,6 +497,8 @@ var enemies = [];
 
 // Number that knows how many enemies will be spawned
 var enemy_spawn_number = 10; 
+
+var enemy_live_bullets = []; 
 
 /***************************
 *			Player Initialization 
@@ -622,6 +643,12 @@ function animate(timestamp)
 
       handleBullet( PC_live_bullets[ i ], i );
       }
+			
+		for( var i = 0; i < enemy_live_bullets.length; i++ )
+			{
+				
+			
+			}
 			
 		document.getElementById( "playerHitPoints" ).innerHTML = player.hitPoints; 
     }
@@ -1018,8 +1045,23 @@ var tweenSpeed = 1000;
 var enemyBullet = new PIXI.Sprite(PIXI.Texture.from('bullet.png'));
 var bulletMoving = false
 
+function enemyAttack()
+	{
+		
+	for( var i = 0; i < enemies.length; i++ )
+		{
+			
+		if( enemies[ i ].name == "shooter" )
+			{
+				
+			
+			}
+		}
+	}
+	
+	
 /*
-function enemyShoot()
+function enemyShoot( shooter )
 {
   bulletReset();	
   enemyBullet.position.x = enemyshooter.position.x;
@@ -1033,13 +1075,13 @@ function enemyShoot()
   createjs.Tween.get(enemyBullet.position).to({x: target_x, y: target_y}, tweenSpeed);
 }
 
-function bulletReset(enemyshooter)
+function bulletReset( shooter, bullet )
 {
 	bullet.position.x = enemyshooter.position.x;
 	bullet.position.y = enemyshooter.position.x;
 }
 
-*/ 
+
 function pewpewStuff()
 {
 	if( gameRunning )
@@ -1049,6 +1091,7 @@ function pewpewStuff()
 	}
 	console.log('An enemy has shot!');
 }
+*/ 
 
 var time;
 
