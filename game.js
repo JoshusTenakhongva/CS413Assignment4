@@ -72,6 +72,8 @@ var camera_sensitivity = 7;
 */
 var pan_offset = 250;
 
+var enemyWave = 1; 
+
 /*******************************************************
 * 		Container Initialization
 ******************************************************/
@@ -414,7 +416,7 @@ class Enemy_chaser
 	{
 	
 	name = "chaser";
-	hitPoints = 2; 
+	hitPoints = 3; 
 	sprite; 
 	
 	constructor( xPosition, yPosition )
@@ -449,7 +451,7 @@ enemy.anchor.y = 0.5;
 var enemies = [];
 
 // Number that knows how many enemies will be spawned
-var enemy_spawn_number = 3; 
+var enemy_spawn_number = 10; 
 
 /***************************
 *			Player Initialization 
@@ -844,13 +846,16 @@ function initializePlayer( screen )
 function spawnEnemies( container )
 	{
 		
-	for( var i = 0; i < enemy_spawn_number; i++ )
+	enemies = []; 
+	
+	for( var i = 0; i < enemy_spawn_number + enemyWave; i++ )
 		{
 		
 		xPos = Math.floor( Math.random() * 400 ) + 50;
 		yPos = Math.floor( Math.random() * 400 ) + 40;
 		
 		var enemy = new Enemy_chaser( xPos, yPos ); 
+		enemy.hitPoints += Math.floor( enemyWave / 2 ); 
 
 		enemies.push( enemy ); 
 		container.addChild( enemy.sprite );
@@ -961,7 +966,33 @@ function handleEnemyHit( enemy, container, enemy_index )
 		// Remove the enemy from play 
 		container.removeChild( enemy.sprite ); 
 		enemies.splice( enemy_index, 1 ); 
+		
+		// Check if all of the enemies have been killed 
+		if( enemies.length == 0 )
+			{
+				
+			var waveText = new PIXI.Text( "Wave " + enemyWave + " completed" );
+			waveText.position.x = 400; 
+			waveText.position.y = 300; 
+			waveText.anchor.x = 0.5; 
+			waveText.anchor.y = 0.5; 
+			
+			gameplayScreen.addChild( waveText ); 
+			
+			enemyWave++; 
+			
+			
+			
+			setTimeout( spawnEnemies, 5000, gameplayScreen ); 
+			setTimeout( removeWaveText, 5000, waveText ); 
+			}
 		}
+	}
+	
+function removeWaveText( text )
+	{
+		
+	gameplayScreen.removeChild( text ); 
 	}
 
 /**********************************
