@@ -422,7 +422,7 @@ class Enemy_chaser
 	constructor( xPosition, yPosition )
 		{
 		
-		this.sprite = new PIXI.Sprite( PIXI.Texture.from( "playerCharacter.png" ));
+		this.sprite = new PIXI.Sprite( PIXI.Texture.from( "enemyChaser.png" ));
 		this.sprite.anchor.x = 0.5; 
 		this.sprite.anchor.y = 0.5; 
 		this.sprite.position.x = xPosition; 
@@ -508,6 +508,9 @@ var player =
 	collisionY: ( this.y + this.height/2 - - this.collisionBoxHeight ),
 	
 	// This is the actual rectangle object that is going to be used for collisions 
+	PC_body : new PIXI.Sprite( PIXI.Texture.from( "playerCharacter.png" )),
+	PC_blaster : new PIXI.Sprite( PIXI.Texture.from( "blaster.png" )),
+	
 	collisionBox: new PIXI.Rectangle( this.collisionX,
 																		this.collisionY,
 																		this.collisionBoxWidth,
@@ -530,21 +533,19 @@ class PowerUp
 	
 // PIXI.Texture.from
 // The sprite that represents the player character's body
-var PC_body = new PIXI.Sprite( PIXI.Texture.from( "playerCharacter.png" ));
-PC_body.anchor.x = 0.5;
-PC_body.anchor.y = 0.5;
-PC_body.position.x = player.x;
-PC_body.position.y = player.y;
+player.PC_body.anchor.x = 0.5;
+player.PC_body.anchor.y = 0.5;
+player.PC_body.position.x = player.x;
+player.PC_body.position.y = player.y;
 
 // The sprite that represents the gun of the player character
-var PC_blaster = new PIXI.Sprite( PIXI.Texture.from( "blaster.png" ));
-PC_blaster.anchor.x = 0.5;
-PC_blaster.anchor.y = 1.2;
-PC_blaster.position.x = player.x;
-PC_blaster.position.y = player.y;
+player.PC_blaster.anchor.x = 0.5;
+player.PC_blaster.anchor.y = 1.2;
+player.PC_blaster.position.x = player.x;
+player.PC_blaster.position.y = player.y;
 
 // An array that holds all of the player sprites, so they can all be updated easily
-var PC_parts = [ PC_body, PC_blaster ];
+var PC_parts = [ player.PC_body, player.PC_blaster ];
 
 // Variable that keeps track of how many bullets are left
 var bulletNum = BULLET_CAP;
@@ -751,7 +752,7 @@ function calculate_PC_aim()
 
 	// The sprite's rotation is slightly different and must be accounted for
 	// This number is only for the sprite
-  PC_blaster.rotation = angle + 1.57;
+  player.PC_blaster.rotation = angle + 1.57;
   }
 
 /*******************************
@@ -809,26 +810,37 @@ function keyup_PC_movement( key )
 */
 function playerMovementHandler()
   {
-
+	
+	
+	
 	// For all of these conditions, they will move the player based on its speed
 	// Checks if the player wants to move up
   if( player.moveUp == true )
     { 
-		
-		player.y -= player.speed; 
-		}
+		player.PC_body.y -= player.speed; 
+		player.y = player.PC_body.y; 
+	}
 
 	// Checks if the player wants to move down
   if( player.moveDown == true )
-    { player.y += player.speed; }
+    { 
+		player.PC_body.y += player.speed; 
+		player.y = player.PC_body.y; 
+	}
 
 	// Checks if the player wants to move right
   if( player.moveRight == true )
-    { player.x += player.speed; }
+    {	
+		player.PC_body.x += player.speed;
+		player.x = player.PC_body.x; 
+	}
 
 	// Checks if the player wants to move left
   if( player.moveLeft == true )
-    { player.x -= player.speed; }
+    { 
+		player.PC_body.x -= player.speed; 		
+		player.x = player.PC_body.x; 		
+	}
 
 	player.collisionBox.y = player.y;
 	player.collisionBox.x = player.x;
@@ -861,11 +873,15 @@ function checkPlayerCollides()
 	{
 		
 	var index; 
+	
+	//Check to see if player hits outer boundaries
+	bump_engine.contain( player.PC_body, {x: 10, y: 50, width:745, height:705});
+	
 	// Check if the player has collided with a powerup 
 	for( index = 0; index < powerUps.length; index++ )
 		{
 
-		if( bump_engine.hit( PC_body, powerUps[ index ].sprite )) //[ 0 ] ))
+		if( bump_engine.hit( player.PC_body, powerUps[ index ].sprite )) //[ 0 ] ))
 			{
 				
 			console.log( "grabbed powerup" ); 
@@ -969,19 +985,19 @@ function moveChaser( chaser )
 	{
 
 	// move the enemy right
-  if( chaser.position.x < PC_body.position.x) {
+  if( chaser.position.x < player.PC_body.position.x) {
     chaser.position.x = chaser.position.x + 1 * chaser_speed;
   }
   // move the enemy left
-  else if( chaser.position.x > PC_body.position.x) {
+  else if( chaser.position.x > player.PC_body.position.x) {
     chaser.position.x = chaser.position.x - 1 * chaser_speed;
   }
   // move the enemy down
-  if( chaser.position.y < PC_body.position.y) {
+  if( chaser.position.y < player.PC_body.position.y) {
     chaser.position.y = chaser.position.y + 1 * chaser_speed;
   }
   // move the enemy up
-  else if( chaser.position.y > PC_body.position.y) {
+  else if( chaser.position.y > player.PC_body.position.y) {
     chaser.position.y = chaser.position.y - 1 * chaser_speed;
 	}
 	}
@@ -1378,13 +1394,13 @@ function updateCamera()
 	// Move the camera based on the player's position and mouse position. This changes if the camera is zoomed
 	if( CAMERA_ZOOM )
 		{
-		gameplayScreen.x = (-player.x * GAME_SCALE + CENTER_X + -player.width/2) - ( panX/camera_sensitivity );
-		gameplayScreen.y = (-player.y * GAME_SCALE + CENTER_Y + -player.height/2) - ( panY/camera_sensitivity );
+		gameplayScreen.x = (-player.PC_body.x * GAME_SCALE + CENTER_X + -player.width/2) - ( panX/camera_sensitivity );
+		gameplayScreen.y = (-player.PC_body.y * GAME_SCALE + CENTER_Y + -player.height/2) - ( panY/camera_sensitivity );
 		}
 	else
 		{
-		gameplayScreen.x = (-player.x + CENTER_X + -player.width/2) - ( panX/camera_sensitivity );
-		gameplayScreen.y = (-player.y + CENTER_Y + -player.height/2) - ( panY/camera_sensitivity );
+		gameplayScreen.x = (-player.PC_body.x + CENTER_X + -player.width/2) - ( panX/camera_sensitivity );
+		gameplayScreen.y = (-player.PC_body.y + CENTER_Y + -player.height/2) - ( panY/camera_sensitivity );
 		}
 
 
