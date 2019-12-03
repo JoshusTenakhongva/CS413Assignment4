@@ -468,7 +468,7 @@ var player =
   y: PC_START_Y,
 	
 	// Damage your bullets do 
-	bulletDamage: 1,
+	bulletDamage: 3,
 	bulletNumber: 1, 
 
 	// The speed the player will move at
@@ -514,6 +514,20 @@ var player =
 																		this.collisionBoxHeight )
   };
 
+class PowerUp
+	{
+		
+	sprite; 
+	type; 
+	
+	constructor( sprite, type )
+		{
+			
+		this.sprite = sprite; 
+		this.type = type; 
+		}
+	}
+	
 // PIXI.Texture.from
 // The sprite that represents the player character's body
 var PC_body = new PIXI.Sprite( PIXI.Texture.from( "playerCharacter.png" ));
@@ -538,6 +552,8 @@ var bulletNum = BULLET_CAP;
 // An array that holds all of the live bullets shot by the PC
 var PC_live_bullets = [];
 
+var powerUps = []; 
+
 /************************************************************
 *     Game Loop
 *************************************************************/
@@ -559,6 +575,7 @@ function animate(timestamp)
     playerMovementHandler();
     calculate_PC_aim();
 		moveEnemies();
+		checkPlayerCollides(); 
 		
 		// Check if the player has collided with any piece of the environment
     if( bump_engine.hit( player, tileMapManager.testRoom_map[ 0 ].sprite ) )
@@ -840,6 +857,46 @@ function initializePlayer( screen )
 	spawnEnemies( screen ); 
 	}
 	
+function checkPlayerCollides()
+	{
+		
+	var index; 
+	// Check if the player has collided with a powerup 
+	for( index = 0; index < powerUps.length; index++ )
+		{
+
+		if( bump_engine.hit( PC_body, powerUps[ index ].sprite )) //[ 0 ] ))
+			{
+				
+			console.log( "grabbed powerup" ); 
+			
+			switch( powerUps[ index ].type )
+				{
+				
+				case "damageBoost":
+					player.bulletDamage++; 
+					break; 
+				
+				case "increaseProjectiles":
+					player.bulletNumber++; 
+					break; 
+				} 
+				
+			gameplayScreen.removeChild( powerUps[ index ].sprite );
+			powerUps.splice( index, 1 ); 
+			 
+			}  
+		}
+	
+	/*
+	// Check if the player has collided with an enemy
+	for( index = 0; index < enemies.length; index++ )
+		{
+			
+		}
+		*/ 
+	}
+	
 /***********************************
 * 		Enemy Functions 
 ***********************************/ 
@@ -962,6 +1019,40 @@ function handleEnemyHit( enemy, container, enemy_index )
 	// Check if the enemy should be dead
 	if( enemy.hitPoints <= 0 )
 		{
+			
+			
+		// Check if the enemy dropped a powerup
+		var powerupChance = Math.random(); 
+		
+		if( powerupChance < 0.05 )
+			{
+				
+			var powerupSprite; 
+			var type; 
+	
+			if( powerupChance < 0.01 )
+				{
+				
+				powerupSprite = new PIXI.Sprite( PIXI.Texture.from( "spreadPowerupIcon.png" ));
+				type = "increaseProjectiles";
+				}
+			else
+				{
+					
+				powerupSprite = new PIXI.Sprite( PIXI.Texture.from( "damagePowerupIcon.png" )); 
+				type = "damageBoost"; 
+				}
+				
+			powerupSprite.position.x = enemy.sprite.position.x; 
+			powerupSprite.position.y = enemy.sprite.position.y; 
+			powerupSprite.anchor.x = 0.5; 
+			powerupSprite.anchor.y = 0.5; 
+			
+			powerup = new PowerUp( powerupSprite, type ); 
+			
+			gameplayScreen.addChild( powerupSprite );
+			powerUps.push( powerup ); 
+			} 
 
 		// Remove the enemy from play 
 		container.removeChild( enemy.sprite ); 
@@ -980,9 +1071,7 @@ function handleEnemyHit( enemy, container, enemy_index )
 			gameplayScreen.addChild( waveText ); 
 			
 			enemyWave++; 
-			
-			
-			
+
 			setTimeout( spawnEnemies, 5000, gameplayScreen ); 
 			setTimeout( removeWaveText, 5000, waveText ); 
 			}
