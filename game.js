@@ -429,6 +429,25 @@ class Enemy_chaser
 		this.sprite.position.y = yPosition; 
 		}	
 	}
+	
+// Class that holds the information about the shooter 
+class Enemy_shooter 
+	{
+	
+	name = "shooter";
+	hitPoints = 1; 
+	sprite; 
+	
+	constructor( xPosition, yPosition )
+		{
+		
+		this.sprite = new PIXI.Sprite( PIXI.Texture.from( "enemyShooter.png" ));
+		this.sprite.anchor.x = 0.5; 
+		this.sprite.anchor.y = 0.5; 
+		this.sprite.position.x = xPosition; 
+		this.sprite.position.y = yPosition; 
+		}	
+	}
 
 /*var enemy_shooter = new PIXI.sprite(//insert enemy sprite here)';
 enemy.anchor.x = 0.5;
@@ -576,6 +595,7 @@ function animate(timestamp)
     playerMovementHandler();
     calculate_PC_aim();
 		moveEnemies();
+		enemyShoot();
 		checkPlayerCollides(); 
 		
 		// Check if the player has collided with any piece of the environment
@@ -919,26 +939,42 @@ function checkPlayerCollides()
 function spawnEnemies( container )
 	{
 		
-	enemies = []; 
-	
-	for( var i = 0; i < enemy_spawn_number + enemyWave; i++ )
-		{
+		enemies = []; 
 		
-		xPos = Math.floor( Math.random() * 400 ) + 50;
-		yPos = Math.floor( Math.random() * 400 ) + 40;
-		
-		var enemy = new Enemy_chaser( xPos, yPos ); 
-		enemy.hitPoints += Math.floor( enemyWave / 2 ); 
+		for( var i = 0; i < enemy_spawn_number + enemyWave; i++ )
+			{
+			
+			xPos = Math.floor( Math.random() * player.x ) + 50 ;
+			yPos = Math.floor( Math.random() * player.y ) + 40 ;
+			
+			var enemy = new Enemy_chaser( xPos, yPos ); 
+			enemy.hitPoints += Math.floor( enemyWave / 2 ); 
 
-		enemies.push( enemy ); 
-		container.addChild( enemy.sprite );
-		}
+			enemies.push( enemy ); 
+			container.addChild( enemy.sprite );
+			}
+		
+		
+		for( var i = 0; i < (enemyWave-1)*2; i++ )
+			{
+			
+			xPos = Math.floor( Math.random() * 350 ) + 200 ;
+			yPos = Math.floor( Math.random() * 250 ) + 300 ;
+			
+			var enemy = new Enemy_shooter( xPos, yPos ); 
+			enemy.hitPoints += Math.floor( enemyWave / 2 ); 
+
+			enemies.push( enemy ); 
+			container.addChild( enemy.sprite );
+			}
 	}
 
 function enemyShoot()
 {
+	
+	
 	// Create bullet sprite 
-  enemy_bullet = new PIXI.Sprite( PIXI.Texture.from( image ));
+  enemy_bullet = new PIXI.Sprite( PIXI.Texture.from( "bullet.png") );
 	
 	// Add it to our gameplay screen 
   gameplayScreen.addChild( enemy_bullet );
@@ -1079,8 +1115,6 @@ function handleEnemyHit( enemy, container, enemy_index )
 			{
 				
 			var waveText = new PIXI.Text( "Wave " + enemyWave + " completed" );
-			waveText.position.x = 400; 
-			waveText.position.y = 300; 
 			waveText.anchor.x = 0.5; 
 			waveText.anchor.y = 0.5; 
 			
@@ -1091,6 +1125,9 @@ function handleEnemyHit( enemy, container, enemy_index )
 			setTimeout( spawnEnemies, 5000, gameplayScreen ); 
 			setTimeout( removeWaveText, 5000, waveText ); 
 			}
+						
+			waveText.position.x = player.x; 
+			waveText.position.y = player.y - 100;
 		}
 	}
 	
