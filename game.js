@@ -418,6 +418,7 @@ class Enemy_chaser
 	name = "chaser";
 	hitPoints = 3; 
 	sprite; 
+	damage = 10; 
 	
 	constructor( xPosition, yPosition )
 		{
@@ -437,6 +438,7 @@ class Enemy_shooter
 	name = "shooter";
 	hitPoints = 1; 
 	sprite; 
+	damage = 3; 
 	
 	constructor( xPosition, yPosition )
 		{
@@ -486,8 +488,10 @@ var player =
   x: PC_START_X,
   y: PC_START_Y,
 	
+	hitPoints: 100, 
+	
 	// Damage your bullets do 
-	bulletDamage: 3,
+	bulletDamage: 2,
 	bulletNumber: 1, 
 
 	// The speed the player will move at
@@ -595,7 +599,7 @@ function animate(timestamp)
     playerMovementHandler();
     calculate_PC_aim();
 		moveEnemies();
-		enemyShoot();
+		//enemyShoot();
 		checkPlayerCollides(); 
 		
 		// Check if the player has collided with any piece of the environment
@@ -613,6 +617,8 @@ function animate(timestamp)
 
       handleBullet( PC_live_bullets[ i ], i );
       }
+			
+		document.getElementById( "playerHitPoints" ).innerHTML = player.hitPoints; 
     }
   renderer.render(stage);
  }
@@ -924,13 +930,47 @@ function checkPlayerCollides()
 			}  
 		}
 	
-	/*
 	// Check if the player has collided with an enemy
 	for( index = 0; index < enemies.length; index++ )
 		{
 			
+		if( bump_engine.hit( player.PC_body, enemies[ index ].sprite ))
+			{
+				
+			player.hitPoints -= enemies[ index ].damage; 
+			
+			if( player.hitPoints <= 0 )
+				{
+				
+				playerDeath();
+				}
+			
+			if( enemies[ index ].name == "chaser" )
+				{
+					
+				enemies[ index ].sprite.position.x = Math.floor( Math.random() * player.x ) + 50 ;
+				enemies[ index ].sprite.position.y = Math.floor( Math.random() * player.y ) + 40 ;
+				}
+			}
 		}
-		*/ 
+	}
+	
+function playerDeath()
+	{
+		
+	console.log( "you died" )
+	restartGame(); 
+	enemyWave = 1; 
+	menuButtonClickHandler(); 
+	}
+	
+function restartGame()
+	{
+		
+	enemies = []; 
+	player.hitPoints = 100; 
+	player.bulletNumber = 1; 
+	player.bulletDamage = 2; 
 	}
 	
 /***********************************
@@ -973,6 +1013,7 @@ var tweenSpeed = 1000;
 var enemyBullet = new PIXI.Sprite(PIXI.Texture.from('bullet.png'));
 var bulletMoving = false
 
+/*
 function enemyShoot()
 {
   bulletReset();	
@@ -993,6 +1034,7 @@ function bulletReset(enemyshooter)
 	bullet.position.y = enemyshooter.position.x;
 }
 
+*/ 
 function pewpewStuff()
 {
 	if( gameRunning )
@@ -1100,9 +1142,9 @@ function handleEnemyHit( enemy, container, enemy_index )
 				type = "increaseProjectiles";
 				}
 			else
-				{
+				{ 
 					
-				powerupSprite = new PIXI.Sprite( PIXI.Texture.from( "damagePowerupIcon.png" )); 
+				powerupSprite = new PIXI.Sprite( PIXI.Texture.from( "damagePowerUpIcon.png" )); 
 				type = "damageBoost"; 
 				}
 				
@@ -1129,6 +1171,9 @@ function handleEnemyHit( enemy, container, enemy_index )
 			waveText.anchor.x = 0.5; 
 			waveText.anchor.y = 0.5; 
 			
+			waveText.position.x = player.x; 
+			waveText.position.y = player.y - 100;
+			
 			gameplayScreen.addChild( waveText ); 
 			
 			enemyWave++; 
@@ -1137,8 +1182,7 @@ function handleEnemyHit( enemy, container, enemy_index )
 			setTimeout( removeWaveText, 5000, waveText ); 
 			}
 						
-			waveText.position.x = player.x; 
-			waveText.position.y = player.y - 100;
+			
 		}
 	}
 	
