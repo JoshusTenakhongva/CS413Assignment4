@@ -26,7 +26,7 @@ const RIGHT_THIRD_DIVIDER = Math.floor( GAME_WIDTH * 0.667 );
 const UPPER_THIRD_DIVIDER = Math.floor( GAME_HEIGHT * 0.333 );
 const LOWER_THIRD_DIVIDER = Math.floor( GAME_HEIGHT * 0.667 );
 
-// The starting x and y coordinates for the player
+// The starting x and y coordinates for the p	layer
 const PC_START_X = 150;
 const PC_START_Y = 150;
 
@@ -969,35 +969,46 @@ function spawnEnemies( container )
 			}
 	}
 
+var tweenSpeed = 1000;
+var enemyBullet = new PIXI.Sprite(PIXI.Texture.from('bullet.png'));
+var bulletMoving = false
+
 function enemyShoot()
 {
-	
-	
-	// Create bullet sprite 
-  enemy_bullet = new PIXI.Sprite( PIXI.Texture.from( "bullet.png") );
-	
-	// Add it to our gameplay screen 
-  gameplayScreen.addChild( enemy_bullet );
-	
-	// Initialize the initial position of the bullet 
-  enemy_bullet.position.x = enemy.x;
-  enemy_bullet.position.y = enemy.y;
-	
-	// Set the rotation of the bullet to be the same as the player's rotation 
-  enemy_bullet.rotation = player.aimRotation;
+  bulletReset();	
+  enemyBullet.position.x = enemyshooter.position.x;
+  enemyBullet.position.y = enemyshooter.position.y;
+  var bulletX = enemyBullet.position.x;
+  var bulletY = enemyBullet.position.y;
+  bulletMoving = true;
+  var target_x = PC_body.position.x;
+  var target_y = PC_body.position.y;
+  gameplayScreen.addChild(enemyBullet);
+  createjs.Tween.get(enemyBullet.position).to({x: target_x, y: target_y}, tweenSpeed);
 }
 
-var sec = 5;
-function timer(){
-    var timer = setInterval(function(){
-        sec--;
-        if (sec < 0) {
-            clearInterval(timer);
-			sec = 5;
-        }
-    }, 1000);
-	
+function bulletReset(enemyshooter)
+{
+	bullet.position.x = enemyshooter.position.x;
+	bullet.position.y = enemyshooter.position.x;
 }
+
+function pewpewStuff()
+{
+	if( gameRunning )
+	{
+	enemyShoot();
+		
+	}
+	console.log('An enemy has shot!');
+}
+
+var time;
+
+function timer(){
+    var time = setInterval(pewpewStuff,1000); 	
+}
+
 
 /*
 * Desc: A general function to move all of the enemies on the board
